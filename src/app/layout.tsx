@@ -4,6 +4,8 @@ import "./globals.css";
 import { NavbarComponent } from "@/components/navbar";
 import Footer from "@/components/footer";
 import { ClerkProvider } from "@clerk/nextjs";
+import { syncUser } from "@/actions/user";
+import { currentUser } from "@clerk/nextjs/server";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -20,11 +22,13 @@ export const metadata: Metadata = {
   description: "CenCV is a platform for creating customized resumes with AI.",
 };
 
-export default function RootLayout({
-  children,
+export default async function RootLayout({children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const user = await currentUser();
+  if(user) await syncUser();
+
   return (
     <ClerkProvider>
     <html lang="en">

@@ -1,0 +1,178 @@
+%-------------------------
+% Resume in Latex
+% Author : Prayag Das
+% Based off of: https://github.com/sb2nov/resume
+% License : MIT
+%------------------------
+
+\documentclass[letterpaper,11pt]{article}
+\usepackage{lmodern}
+\usepackage{latexsym}
+\usepackage[empty]{fullpage}
+\usepackage{titlesec}
+\usepackage[fontsize=12pt]{scrextend}
+\usepackage{marvosym}
+\usepackage[usenames,dvipsnames]{color}
+\usepackage{verbatim}
+\usepackage{enumitem}
+\usepackage[hidelinks]{hyperref}
+\usepackage{fancyhdr}
+\usepackage[english]{babel}
+\usepackage{tabularx}
+\usepackage{fontawesome5}
+\input{glyphtounicode}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyfoot{}
+\renewcommand{\headrulewidth}{0pt}
+\renewcommand{\footrulewidth}{0pt}
+
+% Adjust margins
+\addtolength{\oddsidemargin}{-0.5in}
+\addtolength{\evensidemargin}{-0.5in}
+\addtolength{\textwidth}{1in}
+\addtolength{\topmargin}{-.5in}
+\addtolength{\textheight}{1.0in}
+
+\urlstyle{same}
+
+\raggedbottom
+\raggedright
+\setlength{\tabcolsep}{0in}
+
+% Section formatting
+\titleformat{\section}{
+  \vspace{-4pt}\scshape\raggedright\large
+}{}{0em}{}[\color{black}\titlerule \vspace{-5pt}]
+
+\pdfgentounicode=1
+
+% Custom commands
+\newcommand{\resumeItem}[1]{
+  \item\small{
+    {#1 \vspace{-2pt}}
+  }
+}
+
+\newcommand{\resumeSubheading}[4]{
+  \vspace{-2pt}\item
+    \begin{tabular*}{0.97\textwidth}[t]{l@{\extracolsep{\fill}}r}
+      \textbf{#1} & #2 \\
+      \textit{\small#3} & \textit{\small #4} \\
+    \end{tabular*}\vspace{-7pt}
+}
+
+\newcommand{\resumeSubSubheading}[2]{
+    \item
+    \begin{tabular*}{0.97\textwidth}{l@{\extracolsep{\fill}}r}
+      \textit{\small#1} & \textit{\small #2} \\
+    \end{tabular*}\vspace{-7pt}
+}
+
+\newcommand{\resumeProjectHeading}[2]{
+    \item
+    \begin{tabular*}{0.97\textwidth}{l@{\extracolsep{\fill}}r}
+      \small#1 & #2 \\
+    \end{tabular*}\vspace{-7pt}
+}
+
+\newcommand{\resumeSubItem}[1]{\resumeItem{#1}\vspace{-4pt}}
+
+\renewcommand\labelitemii{$\vcenter{\hbox{\tiny$\bullet$}}$}
+
+\newcommand{\resumeSubHeadingListStart}{\begin{itemize}[leftmargin=0.15in, label={}]}
+\newcommand{\resumeSubHeadingListEnd}{\end{itemize}}
+\newcommand{\resumeItemListStart}{\begin{itemize}}
+\newcommand{\resumeItemListEnd}{\end{itemize}\vspace{-5pt}}
+
+%-------------------------------------------
+%%%%%%  RESUME STARTS HERE  %%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{document}
+
+%----------HEADING----------
+\begin{center}
+    \textbf{\Huge \scshape Prayag Das} \\ \vspace{5pt}
+    \small \faPhone \ +91-7629022205  $|$ 
+    \href{mailto:dasprayag1234@gmail.com}{\faEnvelope \ \underline{dasprayag1234@gmail.com}}  $|$ 
+    \href{https://www.linkedin.com/in/prayag-das78/}{\faLinkedin \ \underline{prayag-das78}}  $|$ 
+    \href{https://github.com/prayag78}{\faGithub \ \underline{prayag78}}
+\end{center}
+
+%-----------EDUCATION-----------
+\section{Education}
+  \resumeSubHeadingListStart
+    \resumeSubheading
+      {National Institute of Technology, Agartala}{2023 -- 2027}
+      {Bachelor of Technology in Computer Science}{CGPA: 7.81}
+    \resumeSubheading
+      {Umakanta Academy}{2021 -- 2023}
+      {Board of Secondary Education}{Percentage: 78\%}
+  \resumeSubHeadingListEnd
+
+%-----------PROJECTS-----------
+\section{Projects}
+  \resumeSubHeadingListStart
+
+    \resumeProjectHeading
+      {\textbf{\href{https://insight-vest-rose.vercel.app/}{{Insightvest} \faLink}}}{April 2025 -- Present}
+      \resumeItemListStart
+        \resumeItem{Built and deployed a \textbf{Full-stack} budget tracking tool to visualize categorized expenses via interactive charts.}
+        \resumeItem{Integrated an \textbf{AI-based} receipt scanner using Gemini API, reducing manual entry time by 100\%.}
+        \resumeItem{Strengthened security via \textbf{Clerk} auth, \textbf{Zod} validation, and containerized deployment with \textbf{Docker}.}
+      \resumeItemListEnd
+      {\small \textbf{Tech Stack:} Next.js, JavaScript, Prisma, Supabase, Clerk, Zod, Docker, Shadcn UI, Gemini API}
+    \vspace{1mm}
+
+    \resumeProjectHeading
+      {\textbf{\href{https://aicruit-chi.vercel.app/}{{Aicruit} \faLink}}}{March 2025 -- April 2025}
+      \resumeItemListStart
+        \resumeItem{Launched an \textbf{AI-driven} job portal that matched users to roles with 85\% accuracy based on skills.}
+        \resumeItem{Built and deployed a secure \textbf{REST API} with user auth, job listing, and application tracking endpoints.}
+        \resumeItem{Enhanced UX with real-time job alerts, resume analytics, and secure email verification.}
+      \resumeItemListEnd
+      {\small \textbf{Tech Stack:} React.js, Tailwind CSS, Node.js, Express.js, MongoDB, REST API, Cloudinary, Gemini API}
+    \vspace{1mm}
+
+    \resumeProjectHeading
+      {\textbf{\href{https://github.com/prayag78/curetime}{{Curetime} \faLink}}}{Nov 2024 -- Dec 2024}
+      \resumeItemListStart
+        \resumeItem{Built a \textbf{MERN} app enabling real-time doctor appointments, supporting both patient and admin roles.}
+        \resumeItem{Designed a responsive UI with \textbf{Tailwind CSS}, improving booking UX by 40\%.}
+        \resumeItem{Managed 100+ records with scalable backend logic in Express.js and MongoDB.}
+      \resumeItemListEnd
+      {\small \textbf{Tech Stack:} React.js, Tailwind CSS, Node.js, REST API, Express.js, MongoDB, Cloudinary}
+  \resumeSubHeadingListEnd
+
+%-----------TECHNICAL SKILLS-----------
+\section{Technical Skills}
+ \begin{itemize}[leftmargin=0.15in, label={}]
+    \small{\item{
+     \textbf{Languages}{: C, C++, JavaScript, TypeScript, HTML, CSS, SQL} \\
+     \textbf{Frameworks and Libraries}{: Next.js, React.js, Node.js, Express.js, Tailwind CSS, Prisma} \\
+     \textbf{Databases}{: MongoDB, Supabase, PostgreSQL} \\
+     \textbf{Developer Tools}{: Git, GitHub, Docker, Postman, Figma} \\
+     \textbf{Core Concepts}{: Data Structures and Algorithms, Object-Oriented Programming, REST APIs, DBMS}
+    }}
+ \end{itemize}
+
+%-----------ACHIEVEMENTS-----------
+\section{Achievements}
+  \resumeItemListStart
+    \resumeItem{Solved 250+ problems on competitive coding platforms; reached a peak rating of \textbf{1590+} on \href{https://leetcode.com/u/dasprayag77/}{\textbf{LeetCode}}.}
+    \resumeItem{Completed Hacktoberfest 2024 with 4+ PRs merged into open-source projects.}
+  \resumeItemListEnd
+
+%-----------POSITION OF RESPONSIBILITY-----------
+\section{Position of Responsibility}
+  \resumeSubHeadingListStart
+    \resumeSubheading
+      {Technical Member, BTC NIT Agartala}{Nov 2024 -- Present}
+      {Board of Technical Community}{}
+      \resumeItemListStart
+        \resumeItem{Maintained and updated the official BTC website, increasing page load speed by 35\% and ensuring responsive performance.}
+      \resumeItemListEnd
+  \resumeSubHeadingListEnd
+
+\end{document}
