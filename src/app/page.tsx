@@ -18,12 +18,12 @@ import {
   Zap
 } from "lucide-react";
 import Link from "next/link";
-import { useUser } from "@clerk/nextjs";
+//import { useUser } from "@clerk/nextjs";
 // import { useState } from "react";
 
 export default function LandingPage() {
-  const { user } = useUser();
-  console.log(user);
+  //  const { user } = useUser();
+  //console.log(user);
   // const [currentTestimonial, setCurrentTestimonial] = useState(0);
 
   // const testimonials = [

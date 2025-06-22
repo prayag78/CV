@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -9,129 +9,38 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-
-import {
   Brain,
   Search,
-  Filter,
   Plus,
-  Briefcase,
-  Code,
-  Palette,
-  GraduationCap,
-  Building,
 } from "lucide-react";
+import { getTemplates } from "@/actions/temp";
 
 interface Template {
   id: string;
   name: string;
-  category: string;
-  preview: string;
-  isPro: boolean;
-  color: string;
+  thumbnailUrl: string;
+  defaultLatex: string;
+  isPublic: boolean;
 }
 
 export default function TemplatesPage() {
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState("all");
 
-  const templates: Template[] = [
-    {
-      id: "1",
-      name: "Modern Minimal",
-      category: "modern",
-      preview: "/image.png",
-      isPro: false,
-      color: "from-blue-500 to-cyan-500",
-    },
-    {
-      id: "2",
-      name: "Executive Pro",
-      category: "professional",
-      preview: "/placeholder.svg?height=400&width=300",
-      isPro: true,
-      color: "from-slate-600 to-slate-800",
-    },
-    {
-      id: "3",
-      name: "Creative Designer",
-      category: "creative",
-      preview: "/placeholder.svg?height=400&width=300",
-      isPro: true,
-      color: "from-purple-500 to-pink-500",
-    },
-    {
-      id: "4",
-      name: "Classic Traditional",
-      category: "traditional",
-      preview: "/placeholder.svg?height=400&width=300",
-      isPro: false,
-      color: "from-emerald-600 to-teal-600",
-    },
-    {
-      id: "5",
-      name: "Tech Developer",
-      category: "modern",
-      preview: "/placeholder.svg?height=400&width=300",
-      isPro: true,
-      color: "from-green-500 to-emerald-500",
-    },
-    {
-      id: "6",
-      name: "Academic Scholar",
-      category: "academic",
-      preview: "/placeholder.svg?height=400&width=300",
-      isPro: false,
-      color: "from-indigo-500 to-blue-600",
-    },
-    {
-      id: "7",
-      name: "Startup Founder",
-      category: "modern",
-      preview: "/placeholder.svg?height=400&width=300",
-      isPro: true,
-      color: "from-orange-500 to-red-500",
-    },
-    {
-      id: "8",
-      name: "Healthcare Professional",
-      category: "professional",
-      preview: "/placeholder.svg?height=400&width=300",
-      isPro: false,
-      color: "from-teal-500 to-cyan-500",
-    },
-    {
-      id: "9",
-      name: "Marketing Specialist",
-      category: "creative",
-      preview: "/placeholder.svg?height=400&width=300",
-      isPro: true,
-      color: "from-pink-500 to-rose-500",
-    },
-  ];
+  const [templates, setTemplates] = useState<Template[]>([]);
 
-  const categories = [
-    { value: "all", label: "All Templates", icon: null },
-    { value: "modern", label: "Modern", icon: Code },
-    { value: "professional", label: "Professional", icon: Briefcase },
-    { value: "creative", label: "Creative", icon: Palette },
-    { value: "traditional", label: "Traditional", icon: Building },
-    { value: "academic", label: "Academic", icon: GraduationCap },
-  ];
+  useEffect(() => {
+    const fetchTemplates = async () => {
+      const templates = await getTemplates();
+      setTemplates(templates as Template[]);
+    };
+    fetchTemplates();
+  }, []);
 
   const filteredTemplates = templates.filter((template) => {
     const matchesSearch = template.name
       .toLowerCase()
       .includes(searchTerm.toLowerCase());
-    const matchesCategory =
-      selectedCategory === "all" || template.category === selectedCategory;
-    return matchesSearch && matchesCategory;
+    return matchesSearch;
   });
 
   return (
@@ -156,7 +65,7 @@ export default function TemplatesPage() {
       <section className="px-4 mb-8">
         <div className="container mx-auto">
           <div className="flex flex-col md:flex-row gap-4 items-center justify-between bg-white dark:bg-slate-800 rounded-2xl p-6 shadow-lg">
-            <div className="flex-1 max-w-md relative">
+            <div className="relative w-full">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 h-4 w-4" />
               <Input
                 placeholder="Search templates..."
@@ -164,30 +73,6 @@ export default function TemplatesPage() {
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="pl-10"
               />
-            </div>
-            <div className="flex items-center gap-4">
-              <Filter className="h-4 w-4 text-slate-500" />
-              <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
-                Category:
-              </span>
-              <Select
-                value={selectedCategory}
-                onValueChange={setSelectedCategory}
-              >
-                <SelectTrigger className="w-48">
-                  <SelectValue placeholder="All Templates" />
-                </SelectTrigger>
-                <SelectContent>
-                  {categories.map((cat) => (
-                    <SelectItem key={cat.value} value={cat.value}>
-                      <div className="flex items-center gap-2">
-                        {cat.icon && <cat.icon className="h-4 w-4" />}
-                        {cat.label}
-                      </div>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
             </div>
           </div>
         </div>
@@ -216,7 +101,7 @@ export default function TemplatesPage() {
                   <div className="p-2">
                     <div className="aspect-[3/4] bg-slate-200 dark:bg-slate-700 rounded-lg mb-4 overflow-hidden border">
                       <Image
-                        src={template.preview}
+                        src={template.thumbnailUrl}
                         alt={template.name}
                         width={300}
                         height={400}
@@ -230,16 +115,16 @@ export default function TemplatesPage() {
                         </h3>
                         <Badge
                           className={`text-white text-xs ${
-                            template.isPro
+                            template.isPublic
                               ? "bg-gradient-to-r from-amber-500 to-orange-500"
                               : "bg-gradient-to-r from-green-500 to-emerald-500"
                           }`}
                         >
-                          {template.isPro ? "Premium" : "Free"}
+                          {template.isPublic ? "Free" : "Premium"}
                         </Badge>
                       </div>
                     </div>
-                    <Link href={`/templates/${template.id}`}>
+                    <Link href={`/templates/${template.name}`}>
                       <Button className="w-full group-hover:shadow-lg transition-shadow duration-300">
                         <Plus className="h-4 w-4 mr-2" />
                         Use This Template

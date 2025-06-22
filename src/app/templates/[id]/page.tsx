@@ -1,8 +1,12 @@
 import ResumeBuilderPage from "@/components/resumebuilder";
 
-export default async function Template({ params }: { params: { id: string } }) {
+type Props = {
+  params: Promise<{ id: string }>;
+};
+
+
+export default async function Template({ params }: Props) {
   const { id } = await params;
-  return (
-    <ResumeBuilderPage templateId={id} />
-  );
+
+  return <ResumeBuilderPage templateId={id} />;
 }

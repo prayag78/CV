@@ -20,8 +20,21 @@ import {
   SignedOut,
   UserButton,
 } from "@clerk/nextjs";
+import { useUser } from "@clerk/nextjs";
+import { useEffect } from "react";
 
 export function NavbarComponent() {
+  const { isSignedIn } = useUser();
+  //const { user } = useUser();
+  //console.log(user);
+
+
+  useEffect(() => {
+    if (isSignedIn) {
+      fetch("/api/sync-user", { method: "POST" });
+    }
+  }, [isSignedIn]);
+  
   const navItems = [
     {
       name: "Dashboard",
@@ -32,8 +45,8 @@ export function NavbarComponent() {
       link: "/templates",
     },
     {
-      name: "Pricing",
-      link: "/pricing",
+      name: "Custom",
+      link: "/custom",
     },
   ];
 
