@@ -18,47 +18,8 @@ import {
   Zap
 } from "lucide-react";
 import Link from "next/link";
-//import { useUser } from "@clerk/nextjs";
-// import { useState } from "react";
 
 export default function LandingPage() {
-  //  const { user } = useUser();
-  //console.log(user);
-  // const [currentTestimonial, setCurrentTestimonial] = useState(0);
-
-  // const testimonials = [
-  //   {
-  //     name: "Sarah Johnson",
-  //     role: "Software Engineer",
-  //     content:
-  //       "This AI resume builder helped me land my dream job at a tech startup. The ATS optimization feature is incredible!",
-  //     rating: 5,
-  //   },
-  //   {
-  //     name: "Michael Chen",
-  //     role: "Marketing Manager",
-  //     content:
-  //       "I created 5 different versions of my resume in minutes. The LaTeX templates look so professional.",
-  //     rating: 5,
-  //   },
-  //   {
-  //     name: "Emily Rodriguez",
-  //     role: "Data Scientist",
-  //     content:
-  //       "Finally, a resume builder that understands what recruiters are looking for. Highly recommended!",
-  //     rating: 5,
-  //   },
-  // ];
-
-  // const nextTestimonial = () => {
-  //   setCurrentTestimonial((prev) => (prev + 1) % testimonials.length);
-  // };
-
-  // const prevTestimonial = () => {
-  //   setCurrentTestimonial(
-  //     (prev) => (prev - 1 + testimonials.length) % testimonials.length
-  //   );
-  // };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800">
@@ -356,89 +317,6 @@ export default function LandingPage() {
           </div>
         </div>
       </section>
-
-      {/* Testimonials Section */}
-      {/* <section
-        id="testimonials"
-        className="py-20 px-4 bg-white dark:bg-slate-800"
-      >
-        <div className="container mx-auto">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-bold text-slate-900 dark:text-white mb-4">
-              What Our Users Say
-            </h2>
-            <p className="text-xl text-slate-600 dark:text-slate-300 max-w-2xl mx-auto">
-              Join thousands of professionals who have successfully landed their
-              dream jobs
-            </p>
-          </div>
-
-          <div className="max-w-4xl mx-auto">
-            <Card className="border-0 shadow-xl">
-              <CardContent className="p-8">
-                <div className="text-center">
-                  <div className="flex justify-center mb-4">
-                    {[...Array(testimonials[currentTestimonial].rating)].map(
-                      (_, i) => (
-                        <Star
-                          key={i}
-                          className="h-5 w-5 text-yellow-400 fill-current"
-                        />
-                      )
-                    )}
-                  </div>
-                  <blockquote className="text-xl md:text-2xl text-slate-700 dark:text-slate-300 mb-6 leading-relaxed">
-                      "{testimonials[currentTestimonial].content}"
-                  </blockquote>
-                  <div className="flex items-center justify-center space-x-4">
-                    <div className="text-center">
-                      <div className="font-bold text-slate-900 dark:text-white">
-                        {testimonials[currentTestimonial].name}
-                      </div>
-                      <div className="text-slate-500 dark:text-slate-400">
-                        {testimonials[currentTestimonial].role}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <div className="flex justify-center items-center mt-8 space-x-4">
-              <Button
-                variant="outline"
-                size="icon"
-                onClick={prevTestimonial}
-                className="rounded-full"
-              >
-                <ChevronLeft className="h-4 w-4" />
-              </Button>
-              <div className="flex space-x-2">
-                {testimonials.map((_, index) => (
-                  <button
-                    key={index}
-                    className={`w-3 h-3 rounded-full transition-colors ${
-                      index === currentTestimonial
-                        ? "bg-emerald-500"
-                        : "bg-slate-300 dark:bg-slate-600"
-                    }`}
-                    onClick={() => setCurrentTestimonial(index)}
-                  />
-                ))}
-              </div>
-              <Button
-                variant="outline"
-                size="icon"
-                onClick={nextTestimonial}
-                className="rounded-full"
-              >
-                <ChevronRight className="h-4 w-4" />
-              </Button>
-            </div>
-          </div>
-        </div>
-      </section> */}
-      
     </div>
   );
 }

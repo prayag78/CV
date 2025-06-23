@@ -10,7 +10,6 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import {
   Save,
-  Eye,
   Upload,
   FileText,
   Code,
@@ -49,7 +48,6 @@ export default function CreateTemplatePage() {
     thumbnailPreview: null,
   });
 
-  //const [showPreview, setShowPreview] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -59,7 +57,7 @@ export default function CreateTemplatePage() {
       id: "personal",
       name: "Personal Information",
       description: "Name, contact details, summary",
-      required: true,
+      required: false,
     },
     {
       id: "summary",
@@ -113,34 +111,37 @@ export default function CreateTemplatePage() {
 
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
-    if (file) {
-      if (file.size > 5 * 1024 * 1024) {
-        setErrors((prev) => ({
-          ...prev,
-          thumbnailImage: "Image size must be less than 5MB",
-        }));
-        return;
-      }
+    if (!file) return;
 
-      if (!file.type.startsWith("image/")) {
-        setErrors((prev) => ({
-          ...prev,
-          thumbnailImage: "Please select a valid image file",
-        }));
-        return;
-      }
-
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        setTemplateData((prev) => ({
-          ...prev,
-          thumbnailImage: file,
-          thumbnailPreview: e.target?.result as string,
-        }));
-        setErrors((prev) => ({ ...prev, thumbnailImage: "" }));
-      };
-      reader.readAsDataURL(file);
+    // Validate file size
+    if (file.size > 5 * 1024 * 1024) {
+      setErrors((prev) => ({
+        ...prev,
+        thumbnailImage: "Image size must be less than 5MB",
+      }));
+      return;
     }
+
+    // Validate file type
+    if (!file.type.startsWith("image/")) {
+      setErrors((prev) => ({
+        ...prev,
+        thumbnailImage: "Please select a valid image file",
+      }));
+      return;
+    }
+
+    // Read file as Base64 for preview
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      setTemplateData((prev) => ({
+        ...prev,
+        thumbnailImage: file,
+        thumbnailPreview: e.target?.result as string,
+      }));
+      setErrors((prev) => ({ ...prev, thumbnailImage: "" }));
+    };
+    reader.readAsDataURL(file);
   };
 
   const removeImage = () => {
@@ -149,6 +150,8 @@ export default function CreateTemplatePage() {
       thumbnailImage: null,
       thumbnailPreview: null,
     }));
+
+    // Clear the file input value to allow re-upload of same file
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
     }
@@ -198,7 +201,6 @@ export default function CreateTemplatePage() {
         }
 
         uploadedImageUrl = data.secure_url;
-
       }
 
       console.log(templateData);
@@ -254,12 +256,7 @@ export default function CreateTemplatePage() {
       </section>
 
       <div className="container mx-auto px-4 pb-20">
-        <div
-          className={`grid ${
-            //showPreview ? "lg:grid-cols-2" : "lg:grid-cols-1"
-            "lg:grid-cols-1"
-          } gap-8`}
-        >
+        <div className={`grid ${"lg:grid-cols-1"} gap-8`}>
           {/* Form Section */}
           <div className="space-y-8">
             <form onSubmit={handleSubmit} className="space-y-8">
@@ -320,22 +317,19 @@ export default function CreateTemplatePage() {
                 <CardContent className="space-y-4">
                   <div className="border-2 border-dashed border-slate-300 dark:border-slate-600 rounded-lg p-6">
                     {templateData.thumbnailPreview ? (
-                      <div className="relative">
-                        <img
-                          src={
-                            templateData.thumbnailPreview || "/placeholder.svg"
-                          }
-                          alt="Template thumbnail"
-                          className="w-full max-w-sm mx-auto rounded-lg shadow-lg"
-                        />
+                      <div className="flex items-center justify-between">
+                        <div className="text-slate-700 dark:text-slate-300 text-sm">
+                          <span className="font-medium">Selected:</span>{" "}
+                          {templateData.thumbnailImage?.name}
+                        </div>
                         <Button
                           type="button"
                           variant="destructive"
                           size="sm"
-                          className="absolute top-2 right-2"
                           onClick={removeImage}
                         >
-                          <X className="h-4 w-4" />
+                          <X className="h-4 w-4 mr-1" />
+                          Remove
                         </Button>
                       </div>
                     ) : (
@@ -357,6 +351,7 @@ export default function CreateTemplatePage() {
                         </Button>
                       </div>
                     )}
+
                     <input
                       ref={fileInputRef}
                       type="file"
@@ -450,15 +445,7 @@ export default function CreateTemplatePage() {
 
               {/* Submit Button */}
               <div className="flex justify-end space-x-4">
-                <div className="flex items-center space-x-2">
-                  {/* <Button
-                    variant="outline"
-                    onClick={() => setShowPreview(!showPreview)}
-                  >
-                    <Eye className="h-4 w-4 mr-2" />
-                    {showPreview ? "Hide Preview" : "Show Preview"}
-                  </Button> */}
-                </div>
+                <div className="flex items-center space-x-2"></div>
                 <Button type="submit" disabled={isSubmitting}>
                   {isSubmitting ? (
                     <>
@@ -477,7 +464,6 @@ export default function CreateTemplatePage() {
           </div>
 
           {/* Preview Section */}
-          
         </div>
       </div>
       <Toaster />
