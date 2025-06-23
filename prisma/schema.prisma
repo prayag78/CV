@@ -32,6 +32,7 @@ model Template {
   defaultLatex String
   isPublic     Boolean  @default(true)
   resumes      Resume[]
+  sections     String[]
 }
 
 model Resume {

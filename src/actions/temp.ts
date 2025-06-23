@@ -5,7 +5,7 @@ import prisma  from "../../lib/prisma";
 export async function getTemplates() {
     try {
         const templates = await prisma.template.findMany();
-        console.log("templates", templates);
+        //console.log("templates", templates);
         return templates;
     } catch (error) {
         console.error("Error fetching templates", error);

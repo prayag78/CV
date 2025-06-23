@@ -1,10 +1,9 @@
-// app/api/templates/route.ts
 import { NextResponse } from "next/server";
 import prisma from "../../../../lib/prisma";
 
 export async function POST(req: Request) {
   try {
-    const { name, defaultLatex, isPublic, thumbnailUrl } = await req.json();
+    const { name, defaultLatex, isPublic, thumbnailUrl, sections } = await req.json();
 
     const newTemplate = await prisma.template.create({
       data: {
@@ -12,6 +11,7 @@ export async function POST(req: Request) {
         defaultLatex,
         isPublic,
         thumbnailUrl,
+        sections: sections || [],
       },
     });
 

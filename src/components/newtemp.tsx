@@ -19,7 +19,6 @@ import {
   X,
 } from "lucide-react";
 import { useState, useRef } from "react";
-import Image from "next/image";
 import { Switch } from "@/components/ui/switch";
 import { Checkbox } from "@/components/ui/checkbox";
 import { toast, Toaster } from "react-hot-toast";
@@ -50,7 +49,7 @@ export default function CreateTemplatePage() {
     thumbnailPreview: null,
   });
 
-  const [showPreview, setShowPreview] = useState(false);
+  //const [showPreview, setShowPreview] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -168,32 +167,41 @@ export default function CreateTemplatePage() {
     e.preventDefault();
     setIsSubmitting(true);
 
-    const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME || "";
-    const preset = process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET || "";
-
-    const uploadUrl = `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`;
-
     try {
       let uploadedImageUrl = "";
 
-      // Step 1: Upload image to Cloudinary if available
       if (templateData.thumbnailImage) {
+        const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME || "";
+        const preset = process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET || "";
+
+        if (!cloudName || !preset) {
+          toast.error("Cloudinary setup missing");
+          return;
+        }
+
+        const uploadUrl = `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`;
+
         const formData = new FormData();
         formData.append("file", templateData.thumbnailImage);
-        formData.append("upload_preset", preset || ""); // 👈 Change this
-        formData.append("folder", "template_thumbnails"); // optional
+        formData.append("upload_preset", preset);
+        formData.append("folder", "template_thumbnails");
 
-        const res = await fetch(
-          uploadUrl,
-          {
-            method: "POST",
-            body: formData,
-          }
-        );
+        const uploadRes = await fetch(uploadUrl, {
+          method: "POST",
+          body: formData,
+        });
 
-        const data = await res.json();
+        const data = await uploadRes.json();
+
+        if (!uploadRes.ok || !data.secure_url) {
+          throw new Error(data.error?.message || "Image upload failed");
+        }
+
         uploadedImageUrl = data.secure_url;
+
       }
+
+      console.log(templateData);
 
       // Step 2: Send everything to your API
       const res = await fetch("/api/template", {
@@ -204,6 +212,7 @@ export default function CreateTemplatePage() {
           defaultLatex: templateData.latexCode,
           isPublic: templateData.isPublic,
           thumbnailUrl: uploadedImageUrl,
+          sections: templateData.sections,
         }),
       });
 
@@ -215,6 +224,13 @@ export default function CreateTemplatePage() {
       console.error("Error:", error);
       toast.error("Something went wrong. Try again.");
     } finally {
+      templateData.name = "";
+      templateData.latexCode = "";
+      templateData.sections = [];
+      templateData.isPublic = true;
+      templateData.thumbnailImage = null;
+      templateData.thumbnailPreview = null;
+      setErrors({});
       setIsSubmitting(false);
     }
   };
@@ -240,7 +256,8 @@ export default function CreateTemplatePage() {
       <div className="container mx-auto px-4 pb-20">
         <div
           className={`grid ${
-            showPreview ? "lg:grid-cols-2" : "lg:grid-cols-1"
+            //showPreview ? "lg:grid-cols-2" : "lg:grid-cols-1"
+            "lg:grid-cols-1"
           } gap-8`}
         >
           {/* Form Section */}
@@ -434,13 +451,13 @@ export default function CreateTemplatePage() {
               {/* Submit Button */}
               <div className="flex justify-end space-x-4">
                 <div className="flex items-center space-x-2">
-                  <Button
+                  {/* <Button
                     variant="outline"
                     onClick={() => setShowPreview(!showPreview)}
                   >
                     <Eye className="h-4 w-4 mr-2" />
                     {showPreview ? "Hide Preview" : "Show Preview"}
-                  </Button>
+                  </Button> */}
                 </div>
                 <Button type="submit" disabled={isSubmitting}>
                   {isSubmitting ? (
@@ -460,80 +477,7 @@ export default function CreateTemplatePage() {
           </div>
 
           {/* Preview Section */}
-          {showPreview && (
-            <div className="lg:sticky lg:top-24 lg:h-fit">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Template Preview</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    {/* Template Info Preview */}
-                    <div className="p-4 bg-slate-50 dark:bg-slate-800 rounded-lg">
-                      <h3 className="font-semibold text-lg mb-2">
-                        {templateData.name || "Template Name"}
-                      </h3>
-                      <div className="flex items-center gap-2 mb-2">
-                        <Badge
-                          variant={
-                            templateData.isPublic ? "default" : "secondary"
-                          }
-                        >
-                          {templateData.isPublic ? "Public" : "Private"}
-                        </Badge>
-                        <Badge variant="outline">
-                          {templateData.sections.length} sections
-                        </Badge>
-                      </div>
-                      {templateData.sections.length > 0 && (
-                        <div className="flex flex-wrap gap-1">
-                          {templateData.sections.map((sectionId) => {
-                            const section = availableSections.find(
-                              (s) => s.id === sectionId
-                            );
-                            return (
-                              <Badge
-                                key={sectionId}
-                                variant="secondary"
-                                className="text-xs"
-                              >
-                                {section?.name}
-                              </Badge>
-                            );
-                          })}
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Thumbnail Preview */}
-                    {templateData.thumbnailPreview && (
-                      <div>
-                        <h4 className="font-medium mb-2">Thumbnail</h4>
-                        <img
-                          src={
-                            templateData.thumbnailPreview || "/placeholder.svg"
-                          }
-                          alt="Template thumbnail"
-                          className="w-full rounded-lg shadow-md"
-                        />
-                      </div>
-                    )}
-
-                    {/* LaTeX Code Preview */}
-                    {templateData.latexCode && (
-                      <div>
-                        <h4 className="font-medium mb-2">LaTeX Code Preview</h4>
-                        <pre className="bg-slate-900 text-green-400 p-4 rounded-lg text-xs overflow-auto max-h-64 font-mono">
-                          {templateData.latexCode.slice(0, 500)}
-                          {templateData.latexCode.length > 500 && "..."}
-                        </pre>
-                      </div>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-          )}
+          
         </div>
       </div>
       <Toaster />

@@ -13,7 +13,7 @@ import {
   Search,
   Plus,
 } from "lucide-react";
-import { getTemplates } from "@/actions/temp";
+import { getTemplates } from "@/actions/temp"; 
 
 interface Template {
   id: string;
@@ -21,6 +21,7 @@ interface Template {
   thumbnailUrl: string;
   defaultLatex: string;
   isPublic: boolean;
+  sections: string[];
 }
 
 export default function TemplatesPage() {
@@ -34,6 +35,10 @@ export default function TemplatesPage() {
       setTemplates(templates as Template[]);
     };
     fetchTemplates();
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
   }, []);
 
   const filteredTemplates = templates.filter((template) => {

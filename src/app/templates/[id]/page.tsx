@@ -8,5 +8,6 @@ type Props = {
 export default async function Template({ params }: Props) {
   const { id } = await params;
 
+
   return <ResumeBuilderPage templateId={id} />;
 }
