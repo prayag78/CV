@@ -138,7 +138,9 @@ export default function ResumeBuilderPage({
   const [showLatex, setShowLatex] = useState(false);
   const [template, setTemplate] = useState<Template | null>(null);
   const [inputSkills, setInputSkills] = useState<Record<string, string>>({});
-  const [inputProjectSkills, setInputProjectSkills] = useState<Record<string, string>>({});
+  const [inputProjectSkills, setInputProjectSkills] = useState<
+    Record<string, string>
+  >({});
   const router = useRouter();
   const { latexCode, setLatexCode, pdfUrl, setPdfUrl } = useResumeStore();
 
@@ -323,7 +325,7 @@ export default function ResumeBuilderPage({
       ),
     }));
   };
-  
+
   const addCertification = () => {
     const newCert: Certification = {
       id: Date.now().toString(), // Unique ID (timestamp-based)
@@ -466,13 +468,13 @@ export default function ResumeBuilderPage({
       id: Date.now().toString(),
       summary: "",
     };
-  
+
     setResumeData((prev) => ({
       ...prev,
       summary: newSummary,
     }));
   };
-  
+
   const updateSummary = (value: string) => {
     setResumeData((prev) => ({
       ...prev,
@@ -482,14 +484,14 @@ export default function ResumeBuilderPage({
       },
     }));
   };
-  
+
   const removeSummary = () => {
     setResumeData((prev) => ({
       ...prev,
       summary: undefined,
     }));
   };
-  
+
   const handleSubmit = async () => {
     setIsLoading(true);
     try {
@@ -497,55 +499,59 @@ export default function ResumeBuilderPage({
         template: template?.defaultLatex,
         userData: resumeData,
       };
-  
-      const res = await fetch('/api/generate-resume', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+
+      const res = await fetch("/api/generate-resume", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
-  
-      if (!res.ok) throw new Error('Resume generation failed');
-  
+
+      if (!res.ok) throw new Error("Resume generation failed");
+
       const { latex, pdf } = await res.json();
-  
+
       if (latex) setLatexCode(latex);
-  
+
       if (pdf) {
         const byteCharacters = atob(pdf);
-        const byteArray = new Uint8Array([...byteCharacters].map(c => c.charCodeAt(0)));
-        const blob = new Blob([byteArray], { type: 'application/pdf' });
+        const byteArray = new Uint8Array(
+          [...byteCharacters].map((c) => c.charCodeAt(0))
+        );
+        const blob = new Blob([byteArray], { type: "application/pdf" });
         const url = URL.createObjectURL(blob);
         setPdfUrl(url);
       }
-  
     } catch (error) {
-      toast.error('Generation failed');
-      console.error('Generation error:', error);
+      toast.error("Generation failed");
+      console.error("Generation error:", error);
     } finally {
       setIsLoading(false);
     }
   };
   
   
+  
+
+  
   const handleDownload = () => {
     if (pdfUrl) {
-      const a = document.createElement('a');
+      const a = document.createElement("a");
       a.href = pdfUrl;
-      a.download = 'resume.pdf';
+      a.download = "resume.pdf";
       a.click();
     }
-  };  
+  };
 
   const handleEdit = () => {
     //console.log("latexCode", latexCode);
-    router.push('/edit');
+    router.push("/edit");
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-900">
-      <div className="flex h-[calc(100vh-80px)]">
+    <div className="h-100vh bg-slate-50 dark:bg-slate-900 overflow-y-auto mb-10 pt-4">
+      <div className="flex flex-col md:flex-row h-[100vh]">
         {/* Left Panel - LaTeX Code and Preview */}
-        <div className="w-1/2 border-r border-slate-200 dark:border-slate-700 flex flex-col">
+        <div className="w-full md:w-1/2 border-b md:border-b-0 md:border-r border-slate-200 dark:border-slate-700 flex flex-col min-h-[60vh] max-h-[80vh] md:max-h-none">
           <div className="p-4 border-b border-slate-200 dark:border-slate-700">
             <div className="flex items-center justify-between">
               <h2 className="text-lg font-semibold text-slate-900 dark:text-white">
@@ -553,14 +559,18 @@ export default function ResumeBuilderPage({
               </h2>
               <div className="flex items-center space-x-2">
                 {pdfUrl && (
-                  <Button variant="outline" size="sm" onClick={handleDownload}>
+                  <Button
+                    variant="outline"
+                    onClick={handleDownload}
+                    className="text-sm px-3 py-1.5 lg:text-base lg:px-5 lg:py-2.5"
+                  >
                     Download
                   </Button>
                 )}
 
                 <Button
                   variant={showPreview ? "default" : "outline"}
-                  size="lg"
+                  className="text-sm px-3 py-1.5 lg:text-base lg:px-5 lg:py-2.5"
                   onClick={() => {
                     setShowPreview(true);
                     setShowLatex(false);
@@ -572,7 +582,7 @@ export default function ResumeBuilderPage({
 
                 <Button
                   variant={showLatex ? "default" : "outline"}
-                  size="lg"
+                  className="text-sm px-3 py-1.5 lg:text-base lg:px-5 lg:py-2.5"
                   onClick={() => {
                     setShowLatex(true);
                     setShowPreview(false);
@@ -587,11 +597,11 @@ export default function ResumeBuilderPage({
 
           <div className="flex-1 overflow-auto">
             {showPreview && (
-              <div className="p-6">
+              <div className="p-2 md:p-6">
                 {pdfUrl ? (
                   <iframe
                     src={pdfUrl}
-                    className="w-full h-[600px] border rounded"
+                    className="w-full h-[400px] md:h-[600px] border rounded"
                     title="PDF Preview"
                   />
                 ) : (
@@ -607,8 +617,8 @@ export default function ResumeBuilderPage({
             )}
 
             {showLatex && (
-              <div className="p-4">
-                <pre className="bg-slate-900 text-green-400 p-4 rounded-lg text-sm overflow-auto font-mono whitespace-pre-wrap">
+              <div className="p-2 md:p-4">
+                <pre className="bg-slate-900 text-green-400 p-2 md:p-4 rounded-lg text-xs md:text-sm overflow-auto font-mono whitespace-pre-wrap">
                   {template?.defaultLatex}
                 </pre>
               </div>
@@ -617,119 +627,130 @@ export default function ResumeBuilderPage({
         </div>
 
         {/* Right Panel - Form */}
-        <div className="w-1/2 flex flex-col">
+        <div className="w-full md:w-1/2 flex flex-col">
           <div className="flex justify-between p-4 border-b border-slate-200 dark:border-slate-700">
             <h2 className="text-lg font-semibold text-slate-900 dark:text-white">
               Resume Information
             </h2>
             <div className="flex justify-center items-center">
               {isLoading ? (
-                <Button disabled className="w-full cursor-pointer"  size="lg">
+                <Button
+                  disabled
+                  className="w-full cursor-pointer text-sm px-3 py-1.5 lg:text-base lg:px-5 lg:py-2.5"
+                >
                   Generating...
                 </Button>
               ) : latexCode ? (
-                <Button onClick={handleEdit} className="w-full cursor-pointer" size="lg">
+                <Button
+                  onClick={handleEdit}
+                  className="w-full cursor-pointer text-sm px-3 py-1.5 lg:text-base lg:px-5 lg:py-2.5"
+                >
                   Edit with AI
                 </Button>
-              ) :  (
-                <Button onClick={handleSubmit} className="w-full cursor-pointer" size="lg">
+              ) : (
+                <Button
+                  onClick={handleSubmit}
+                  className="w-full cursor-pointer text-sm px-3 py-1.5 lg:text-base lg:px-5 lg:py-2.5"
+                >
                   Generate Resume
                 </Button>
-              ) }
+              )}
             </div>
           </div>
 
-          <div className="flex-1 overflow-auto">
+          <div className="w-full mt-4 overflow-scroll p-0.5">
             <Tabs
               value={activeTab}
               onValueChange={setActiveTab}
-              className="h-full"
+              className="p-1"
             >
-              <TabsList className="grid w-full grid-cols-4 m-4 overflow-scroll h-25 mb-1">
-                {template?.sections?.includes("personal") && (
-                  <TabsTrigger
-                    value="personal"
-                    className="flex items-center gap-2"
-                  >
-                    <User className="h-4 w-4" />
-                    Personal
-                  </TabsTrigger>
-                )}
-                {template?.sections?.includes("experience") && (
-                  <TabsTrigger
-                    value="experience"
-                    className="flex items-center gap-2"
-                  >
-                    <Briefcase className="h-4 w-4" />
-                    Experience
-                  </TabsTrigger>
-                )}
-                {template?.sections?.includes("education") && (
-                  <TabsTrigger
-                    value="education"
-                    className="flex items-center gap-2"
-                  >
-                    <GraduationCap className="h-4 w-4" />
-                    Education
-                  </TabsTrigger>
-                )}
-                {template?.sections?.includes("skills") && (
-                  <TabsTrigger
-                    value="skills"
-                    className="flex items-center gap-2"
-                  >
-                    <Award className="h-4 w-4" />
-                    Skills
-                  </TabsTrigger>
-                )}
-                {template?.sections?.includes("projects") && (
-                  <TabsTrigger
-                    value="projects"
-                    className="flex items-center gap-2"
-                  >
-                    <Code className="h-4 w-4" />
-                    Projects
-                  </TabsTrigger>
-                )}
-                {template?.sections?.includes("certifications") && (
-                  <TabsTrigger
-                    value="certifications"
-                    className="flex items-center gap-2"
-                  >
-                    <Award className="h-4 w-4" />
-                    Certifications
-                  </TabsTrigger>
-                )}
-                {template?.sections?.includes("positions") && (
-                  <TabsTrigger
-                    value="positions"
-                    className="flex items-center gap-2"
-                  >
-                    <Briefcase className="h-4 w-4" />
-                    Positions/Leadership
-                  </TabsTrigger>
-                )}
-                {template?.sections?.includes("achievements") && (
-                  <TabsTrigger
-                    value="achievements"
-                    className="flex items-center gap-2"
-                  >
-                    <Award className="h-4 w-4" />
-                    Achievements
-                  </TabsTrigger>
-                )}
-                {template?.sections?.includes("summary") && (
-                  <TabsTrigger
-                    value="summary"
-                    className="flex items-center gap-2"
-                  >
-                    <AlignLeft className="h-4 w-4" />
-                    Summary
-                  </TabsTrigger>
-                )}
-              </TabsList>
+              <div className="w-full overflow-x-auto">
+                <TabsList className="flex md:grid md:grid-cols-4 md:m-4 md:h-25 mb-1 md:gap-0 p-2 space-x-2">
+                  {template?.sections?.includes("personal") && (
+                    <TabsTrigger
+                      value="personal"
+                      className="flex items-center gap-2 justify-center min-h-10 p-1"
+                    >
+                      <User className="h-4 w-4" />
+                      Personal
+                    </TabsTrigger>
+                  )}
+                  {template?.sections?.includes("experience") && (
+                    <TabsTrigger
+                      value="experience"
+                      className="flex items-center gap-2 justify-center min-h-10 p-1"
+                    >
+                      <Briefcase className="h-4 w-4" />
+                      Experience
+                    </TabsTrigger>
+                  )}
+                  {template?.sections?.includes("education") && (
+                    <TabsTrigger
+                      value="education"
+                      className="flex items-center gap-2 justify-center min-h-10 p-1"
+                    >
+                      <GraduationCap className="h-4 w-4" />
+                      Education
+                    </TabsTrigger>
+                  )}
+                  {template?.sections?.includes("skills") && (
+                    <TabsTrigger
+                      value="skills"
+                      className="flex items-center gap-2 justify-center min-h-10 p-1"
+                    >
+                      <Award className="h-4 w-4" />
+                      Skills
+                    </TabsTrigger>
+                  )}
+                  {template?.sections?.includes("projects") && (
+                    <TabsTrigger
+                      value="projects"
+                      className="flex items-center gap-2 justify-center min-h-10 p-1"
+                    >
+                      <Code className="h-4 w-4" />
+                      Projects
+                    </TabsTrigger>
+                  )}
+                  {template?.sections?.includes("certifications") && (
+                    <TabsTrigger
+                      value="certifications"
+                      className="flex items-center gap-2 justify-center min-h-10 p-1"
+                    >
+                      <Award className="h-4 w-4" />
+                      Certifications
+                    </TabsTrigger>
+                  )}
+                  {template?.sections?.includes("positions") && (
+                    <TabsTrigger
+                      value="positions"
+                      className="flex items-center gap-2 justify-center min-h-10 p-1"
+                    >
+                      <Briefcase className="h-4 w-4" />
+                      Positions/Leadership
+                    </TabsTrigger>
+                  )}
+                  {template?.sections?.includes("achievements") && (
+                    <TabsTrigger
+                      value="achievements"
+                      className="flex items-center gap-2 justify-center min-h-10 p-1"
+                    >
+                      <Award className="h-4 w-4" />
+                      Achievements
+                    </TabsTrigger>
+                  )}
+                  {template?.sections?.includes("summary") && (
+                    <TabsTrigger
+                      value="summary"
+                      className="flex items-center gap-2 justify-center min-h-10 p-1"
+                    >
+                      <AlignLeft className="h-4 w-4" />
+                      Summary
+                    </TabsTrigger>
+                  )}
+                </TabsList>
+              </div>
 
-              <div className="p-4">
+              <div className="p-1">
                 <TabsContent value="personal" className="space-y-6">
                   <Card>
                     <CardHeader>
@@ -1266,17 +1287,22 @@ export default function ResumeBuilderPage({
                                   }));
                                 }}
                                 onBlur={() => {
-                                  const parsed = (inputProjectSkills[project.id || ""] || "")
+                                  const parsed = (
+                                    inputProjectSkills[project.id || ""] || ""
+                                  )
                                     .split(",")
                                     .map((s) => s.trim())
                                     .filter((s) => s);
-                                  
-                                  updateProject(project.id || "", "skills", parsed);
+
+                                  updateProject(
+                                    project.id || "",
+                                    "skills",
+                                    parsed
+                                  );
                                 }}
                                 placeholder="React, Tailwind, Node.js"
                                 //rows={2}
                               />
-
                             </div>
                             <div>
                               <Label>Live Link</Label>
@@ -1337,7 +1363,7 @@ export default function ResumeBuilderPage({
                                   "current",
                                   e.target.checked
                                 )
-                              }   
+                              }
                             />
                             <Label htmlFor={`current-project-${project.id}`}>
                               Currently working on this project
@@ -1430,16 +1456,21 @@ export default function ResumeBuilderPage({
                                 }));
                               }}
                               onBlur={() => {
-                                const parsed = (inputSkills[skillGroup.id || ""] || "")
+                                const parsed = (
+                                  inputSkills[skillGroup.id || ""] || ""
+                                )
                                   .split(",")
                                   .map((s) => s.trim())
                                   .filter((s) => s);
-                                updateSkillCategory(skillGroup.id || "", "skills", parsed);
+                                updateSkillCategory(
+                                  skillGroup.id || "",
+                                  "skills",
+                                  parsed
+                                );
                               }}
                               placeholder="JavaScript, Python, React, Node.js"
                               rows={2}
                             />
-
                           </div>
                         </CardContent>
                       </Card>
@@ -1790,9 +1821,15 @@ export default function ResumeBuilderPage({
                 {template?.sections?.includes("summary") && (
                   <TabsContent value="summary" className="space-y-6">
                     <div className="flex justify-between items-center">
-                      <h3 className="text-lg font-semibold">Professional Summary</h3>
+                      <h3 className="text-lg font-semibold">
+                        Professional Summary
+                      </h3>
                       {resumeData.summary ? (
-                        <Button onClick={removeSummary} size="sm" variant="destructive">
+                        <Button
+                          onClick={removeSummary}
+                          size="sm"
+                          variant="destructive"
+                        >
                           <Trash2 className="h-4 w-4 mr-2" />
                           Remove Summary
                         </Button>
@@ -1831,7 +1868,6 @@ export default function ResumeBuilderPage({
                     )}
                   </TabsContent>
                 )}
-
               </div>
             </Tabs>
           </div>

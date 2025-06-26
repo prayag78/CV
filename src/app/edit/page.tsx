@@ -17,8 +17,6 @@ export default function LatexEditorPage() {
   const inputRef = useRef<HTMLInputElement>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
-    // console.log("currentPrompt", currentPrompt);
-    //console.log("latexCode", latexCode);
     e.preventDefault();
 
     if (!currentPrompt.trim() || isProcessing) return;

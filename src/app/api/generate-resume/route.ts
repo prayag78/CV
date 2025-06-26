@@ -78,7 +78,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    console.log("✅ Valid LaTeX received. Sending to render server...");
+    console.log("Valid LaTeX received. Sending to render server...");
     console.log("latexcode", updatedLatex);
 
     // 🔸 Call Render PDF compiler
@@ -93,7 +93,7 @@ export async function POST(req: NextRequest) {
 
     if (!renderRes.ok) {
       const errorText = await renderRes.text();
-      console.error("❌ Render server error:", errorText);
+      console.error("Render server error:", errorText);
       return NextResponse.json(
         {
           error: "Render server failed",
@@ -115,7 +115,7 @@ export async function POST(req: NextRequest) {
       pdf: base64PDF,
     });
   } catch (err) {
-    console.error("❌ Error generating resume:", err);
+    console.error("Error generating resume:", err);
     return NextResponse.json(
       { error: "Failed to generate resume" },
       { status: 500 }

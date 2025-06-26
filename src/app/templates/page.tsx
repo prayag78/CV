@@ -9,7 +9,6 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import {
-  Brain,
   Search,
   Plus,
 } from "lucide-react";
@@ -140,25 +139,6 @@ export default function TemplatesPage() {
               ))}
             </div>
           )}
-        </div>
-      </section>
-
-      {/* CTA */}
-      <section className="py-16 px-4 bg-white dark:bg-slate-800">
-        <div className="container mx-auto text-center">
-          <h2 className="text-3xl md:text-4xl font-bold text-slate-900 dark:text-white mb-4">
-            Can&apos;t Find the Perfect Template?
-          </h2>
-          <p className="text-xl text-slate-600 dark:text-slate-300 mb-8 max-w-2xl mx-auto">
-            Our AI can help you create a custom template based on your industry,
-            experience level, and personal preferences.
-          </p>
-          <Button size="lg" className="px-8 py-4" asChild>
-            <Link href="/custom">
-              <Brain className="h-5 w-5 mr-2" />
-              Create Custom Template
-            </Link>
-          </Button>
         </div>
       </section>
     </div>

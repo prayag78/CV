@@ -1,4 +1,3 @@
-// app/unauthorized/page.tsx
 export default function UnauthorizedPage() {
     return (
       <div className="text-center mt-20 min-h-screen">

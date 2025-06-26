@@ -45,8 +45,8 @@ export function NavbarComponent() {
       link: "/templates",
     },
     {
-      name: "Custom",
-      link: "/custom",
+      name: "Pricing",
+      link: "/pricing",
     },
   ];
 

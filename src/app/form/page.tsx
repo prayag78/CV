@@ -1,4 +1,4 @@
-// app/form/page.tsx
+    
 import { currentUser } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import CreateTemplatePage from "@/components/newtemp";
