@@ -22,7 +22,8 @@ import { useEffect, useState } from "react";
 import { getTemplate } from "@/actions/temp";
 import Image from "next/image";
 import { toast } from "react-hot-toast";
-
+import { useRouter } from "next/navigation";
+import { useResumeStore } from "@/store/resumeStore";
 interface PersonalInfo {
   fullName?: string;
   email?: string;
@@ -138,8 +139,8 @@ export default function ResumeBuilderPage({
   const [template, setTemplate] = useState<Template | null>(null);
   const [inputSkills, setInputSkills] = useState<Record<string, string>>({});
   const [inputProjectSkills, setInputProjectSkills] = useState<Record<string, string>>({});
-
-
+  const router = useRouter();
+  const { latexCode, setLatexCode, pdfUrl, setPdfUrl } = useResumeStore();
 
   useEffect(() => {
     const fetchTemplate = async () => {
@@ -175,7 +176,7 @@ export default function ResumeBuilderPage({
   });
 
   //const [submittedData, setSubmittedData] = useState<ResumeData | null>(null);
-  const [pdfUrl, setPdfUrl] = useState<string | null>(null);
+  //const [pdfUrl, setPdfUrl] = useState<string | null>(null);
 
   const [isLoading, setIsLoading] = useState(false);
 
@@ -309,15 +310,6 @@ export default function ResumeBuilderPage({
       projects: (prev.projects || []).filter((project) => project.id !== id),
     }));
   };
-
-  // const updateProject = (id: string, field: keyof Project, value: string) => {
-  //   setResumeData((prev) => ({
-  //     ...prev,
-  //     projects: (prev.projects || []).map((project) =>
-  //       project.id === id ? { ...project, [field]: value } : project
-  //     ),
-  //   }));
-  // };
 
   const updateProject = (
     id: string,
@@ -498,7 +490,6 @@ export default function ResumeBuilderPage({
     }));
   };
   
-  //console.log("resumeData", resumeData.personalInfo);
   const handleSubmit = async () => {
     setIsLoading(true);
     try {
@@ -513,11 +504,20 @@ export default function ResumeBuilderPage({
         body: JSON.stringify(payload),
       });
   
-      if (!res.ok) throw new Error('PDF generation failed');
-      
-      const blob = await res.blob();
-      const url = URL.createObjectURL(blob);
-      setPdfUrl(url);
+      if (!res.ok) throw new Error('Resume generation failed');
+  
+      const { latex, pdf } = await res.json();
+  
+      if (latex) setLatexCode(latex);
+  
+      if (pdf) {
+        const byteCharacters = atob(pdf);
+        const byteArray = new Uint8Array([...byteCharacters].map(c => c.charCodeAt(0)));
+        const blob = new Blob([byteArray], { type: 'application/pdf' });
+        const url = URL.createObjectURL(blob);
+        setPdfUrl(url);
+      }
+  
     } catch (error) {
       toast.error('Generation failed');
       console.error('Generation error:', error);
@@ -525,6 +525,7 @@ export default function ResumeBuilderPage({
       setIsLoading(false);
     }
   };
+  
   
   const handleDownload = () => {
     if (pdfUrl) {
@@ -534,6 +535,11 @@ export default function ResumeBuilderPage({
       a.click();
     }
   };  
+
+  const handleEdit = () => {
+    //console.log("latexCode", latexCode);
+    router.push('/edit');
+  };
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-900">
@@ -554,7 +560,7 @@ export default function ResumeBuilderPage({
 
                 <Button
                   variant={showPreview ? "default" : "outline"}
-                  size="sm"
+                  size="lg"
                   onClick={() => {
                     setShowPreview(true);
                     setShowLatex(false);
@@ -566,7 +572,7 @@ export default function ResumeBuilderPage({
 
                 <Button
                   variant={showLatex ? "default" : "outline"}
-                  size="sm"
+                  size="lg"
                   onClick={() => {
                     setShowLatex(true);
                     setShowPreview(false);
@@ -618,14 +624,18 @@ export default function ResumeBuilderPage({
             </h2>
             <div className="flex justify-center items-center">
               {isLoading ? (
-                <Button disabled className="w-full cursor-pointer" size="lg">
+                <Button disabled className="w-full cursor-pointer"  size="lg">
                   Generating...
                 </Button>
-              ) : (
+              ) : latexCode ? (
+                <Button onClick={handleEdit} className="w-full cursor-pointer" size="lg">
+                  Edit with AI
+                </Button>
+              ) :  (
                 <Button onClick={handleSubmit} className="w-full cursor-pointer" size="lg">
                   Generate Resume
                 </Button>
-              )}
+              ) }
             </div>
           </div>
 
@@ -635,7 +645,7 @@ export default function ResumeBuilderPage({
               onValueChange={setActiveTab}
               className="h-full"
             >
-              <TabsList className="grid w-full grid-cols-4 m-4">
+              <TabsList className="grid w-full grid-cols-4 m-4 overflow-scroll h-25 mb-1">
                 {template?.sections?.includes("personal") && (
                   <TabsTrigger
                     value="personal"
