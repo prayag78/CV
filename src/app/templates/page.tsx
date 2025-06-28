@@ -7,11 +7,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import {
-  Search,
-  Plus,
-} from "lucide-react";
-import { getTemplates } from "@/actions/temp"; 
+import { Search, Plus } from "lucide-react";
 
 interface Template {
   id: string;
@@ -29,8 +25,9 @@ export default function TemplatesPage() {
 
   useEffect(() => {
     const fetchTemplates = async () => {
-      const templates = await getTemplates();
-      setTemplates(templates as Template[]);
+      const res = await fetch("/api/get-templates");
+      const data = await res.json();
+      setTemplates(data);
     };
     fetchTemplates();
     window.scrollTo({
@@ -39,7 +36,7 @@ export default function TemplatesPage() {
     });
   }, []);
 
-  const filteredTemplates = templates.filter((template) => {
+  const filteredTemplates = templates.filter((template: Template) => {
     const matchesSearch = template.name
       .toLowerCase()
       .includes(searchTerm.toLowerCase());
