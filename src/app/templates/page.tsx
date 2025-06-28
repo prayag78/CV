@@ -6,7 +6,6 @@ import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import {
   Search,
@@ -117,7 +116,7 @@ export default function TemplatesPage() {
                         <h3 className="font-bold text-lg text-slate-900 dark:text-white mb-1">
                           {template.name}
                         </h3>
-                        <Badge
+                        {/* <Badge
                           className={`text-white text-xs ${
                             template.isPublic
                               ? "bg-gradient-to-r from-amber-500 to-orange-500"
@@ -125,7 +124,7 @@ export default function TemplatesPage() {
                           }`}
                         >
                           {template.isPublic ? "Free" : "Premium"}
-                        </Badge>
+                        </Badge> */}
                       </div>
                     </div>
                     <Link href={`/templates/${template.name}`}>

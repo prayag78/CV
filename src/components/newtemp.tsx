@@ -203,7 +203,7 @@ export default function CreateTemplatePage() {
         uploadedImageUrl = data.secure_url;
       }
 
-      console.log(templateData);
+      //console.log(templateData);
 
       // Step 2: Send everything to your API
       const res = await fetch("/api/template", {

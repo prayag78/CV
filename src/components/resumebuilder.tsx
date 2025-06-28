@@ -24,6 +24,11 @@ import Image from "next/image";
 import { toast } from "react-hot-toast";
 import { useRouter } from "next/navigation";
 import { useResumeStore } from "@/store/resumeStore";
+import Script from "next/script";
+import { useUser } from "@clerk/nextjs";
+import { createResume } from "@/actions/resume";
+import { getUser } from "@/actions/user";
+
 interface PersonalInfo {
   fullName?: string;
   email?: string;
@@ -55,7 +60,6 @@ interface Education {
   startDate?: string;
   endDate?: string;
   gpa?: string;
-  description?: string;
 }
 
 interface Skill {
@@ -130,9 +134,26 @@ interface Position {
   description?: string;
 }
 
+interface ConfettiOptions {
+  spread?: number;
+  startVelocity?: number;
+  decay?: number;
+  scalar?: number;
+  angle?: number;
+  origin?: {
+    x?: number;
+    y?: number;
+  };
+}
+
+interface WindowWithConfetti extends Window {
+  confetti?: (options: ConfettiOptions) => void;
+}
+
 export default function ResumeBuilderPage({
   templateId,
 }: ResumeBuilderPageProps) {
+  const { user, isSignedIn } = useUser();
   const [activeTab, setActiveTab] = useState("personal");
   const [showPreview, setShowPreview] = useState(true);
   const [showLatex, setShowLatex] = useState(false);
@@ -143,6 +164,7 @@ export default function ResumeBuilderPage({
   >({});
   const router = useRouter();
   const { latexCode, setLatexCode, pdfUrl, setPdfUrl } = useResumeStore();
+  const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
     const fetchTemplate = async () => {
@@ -152,6 +174,16 @@ export default function ResumeBuilderPage({
     fetchTemplate();
   }, [templateId]);
 
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    window.addEventListener("resize", handleResize);
+    handleResize();
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  //console.log("isMobile", isMobile);
   //console.log("template sections", template?.sections);
 
   const [resumeData, setResumeData] = useState<ResumeData>({
@@ -181,6 +213,49 @@ export default function ResumeBuilderPage({
   //const [pdfUrl, setPdfUrl] = useState<string | null>(null);
 
   const [isLoading, setIsLoading] = useState(false);
+  //const [, setIsScriptLoaded] = useState(false);
+
+  const fireConfetti = () => {
+    const count = 200;
+    const defaults = {
+      origin: { y: 0.7 },
+    };
+
+    const fire = (particleRatio: number, opts: ConfettiOptions) => {
+      (window as WindowWithConfetti).confetti?.(
+        Object.assign({}, defaults, opts, {
+          particleCount: Math.floor(count * particleRatio),
+        })
+      );
+    };
+
+    fire(0.25, {
+      spread: 26,
+      startVelocity: 55,
+    });
+
+    fire(0.2, {
+      spread: 60,
+    });
+
+    fire(0.35, {
+      spread: 100,
+      decay: 0.91,
+      scalar: 0.8,
+    });
+
+    fire(0.1, {
+      spread: 120,
+      startVelocity: 25,
+      decay: 0.92,
+      scalar: 1.2,
+    });
+
+    fire(0.1, {
+      spread: 120,
+      startVelocity: 45,
+    });
+  };
 
   const addExperience = () => {
     const newExperience: Experience = {
@@ -229,7 +304,6 @@ export default function ResumeBuilderPage({
       startDate: "",
       endDate: "",
       gpa: "",
-      description: "",
     };
     setResumeData((prev) => ({
       ...prev,
@@ -492,7 +566,25 @@ export default function ResumeBuilderPage({
     }));
   };
 
+  const handleSuccess = () => {
+    fireConfetti();
+    const audio = new Audio("/sounds/celebration.mp3");
+    audio.volume = 0.5;
+    audio.play().catch((err) => {
+      console.error("Audio playback failed:", err);
+    });
+  };
+
   const handleSubmit = async () => {
+    if (!user || !isSignedIn) {
+      toast.error("Please sign in to generate a resume");
+      return;
+    }
+    const dbUser = await getUser(user.id);
+    if (!dbUser) {
+      toast.error("User not found");
+      return;
+    }
     setIsLoading(true);
     try {
       const payload = {
@@ -507,12 +599,14 @@ export default function ResumeBuilderPage({
       });
 
       if (!res.ok) throw new Error("Resume generation failed");
+      handleSuccess();
 
       const { latex, pdf } = await res.json();
 
       if (latex) setLatexCode(latex);
 
       if (pdf) {
+        //sessionStorage.setItem("resume-base64", pdf);
         const byteCharacters = atob(pdf);
         const byteArray = new Uint8Array(
           [...byteCharacters].map((c) => c.charCodeAt(0))
@@ -521,6 +615,30 @@ export default function ResumeBuilderPage({
         const url = URL.createObjectURL(blob);
         setPdfUrl(url);
       }
+
+      const newResume = await createResume({
+        user: {
+          connect: {
+            id: dbUser.id,
+          },
+        },
+        template: {
+          connect: {
+            id: template?.id || "",
+          },
+        },
+        title: template?.name || "",
+        latexCode: latex,
+        pdfUrl: pdf,
+        createdAt: new Date(),
+        isCustom: false
+      });
+
+      if (newResume) {
+        toast.success("Resume created successfully");
+      } else {
+        toast.error("Failed to create resume");
+      }
     } catch (error) {
       toast.error("Generation failed");
       console.error("Generation error:", error);
@@ -528,11 +646,7 @@ export default function ResumeBuilderPage({
       setIsLoading(false);
     }
   };
-  
-  
-  
 
-  
   const handleDownload = () => {
     if (pdfUrl) {
       const a = document.createElement("a");
@@ -543,9 +657,21 @@ export default function ResumeBuilderPage({
   };
 
   const handleEdit = () => {
-    //console.log("latexCode", latexCode);
     router.push("/edit");
   };
+
+  // useEffect(() => {
+  //   const pdfBase64 = sessionStorage.getItem("resume-base64");
+  //   if (pdfBase64) {
+  //     const byteCharacters = atob(pdfBase64);
+  //     const byteArray = new Uint8Array(
+  //       [...byteCharacters].map((c) => c.charCodeAt(0))
+  //     );
+  //     const blob = new Blob([byteArray], { type: "application/pdf" });
+  //     const url = URL.createObjectURL(blob);
+  //     setPdfUrl(url);
+  //   }
+  // }, [setPdfUrl]);
 
   return (
     <div className="h-100vh bg-slate-50 dark:bg-slate-900 overflow-y-auto mb-10 pt-4">
@@ -580,17 +706,24 @@ export default function ResumeBuilderPage({
                   Preview
                 </Button>
 
-                <Button
-                  variant={showLatex ? "default" : "outline"}
-                  className="text-sm px-3 py-1.5 lg:text-base lg:px-5 lg:py-2.5"
-                  onClick={() => {
-                    setShowLatex(true);
-                    setShowPreview(false);
-                  }}
-                >
-                  <Code className="h-4 w-4 mr-2" />
-                  LaTeX
-                </Button>
+                {!isMobile && (
+                  <Button
+                    variant={showLatex ? "default" : "outline"}
+                    className="text-sm px-3 py-1.5 lg:text-base lg:px-5 lg:py-2.5"
+                    onClick={() => {
+                      setShowLatex(true);
+                      setShowPreview(false);
+                    }}
+                  >
+                    <Code className="h-4 w-4 mr-2" />
+                    LaTeX
+                  </Button>
+                )}
+                <Script
+                  src="https://cdn.jsdelivr.net/npm/@tsparticles/confetti@3.0.3/tsparticles.confetti.bundle.min.js"
+                  strategy="afterInteractive"
+                  //onLoad={() => setIsScriptLoaded(true)}
+                />
               </div>
             </div>
           </div>
@@ -601,7 +734,7 @@ export default function ResumeBuilderPage({
                 {pdfUrl ? (
                   <iframe
                     src={pdfUrl}
-                    className="w-full h-[400px] md:h-[600px] border rounded"
+                    className="w-full h-[500px] md:h-[600px] rounded border-none"
                     title="PDF Preview"
                   />
                 ) : (
@@ -665,7 +798,7 @@ export default function ResumeBuilderPage({
               className="p-1"
             >
               <div className="w-full overflow-x-auto">
-                <TabsList className="flex md:grid md:grid-cols-4 md:m-4 md:h-25 mb-1 md:gap-0 p-2 space-x-2">
+                <TabsList className="flex md:grid md:grid-cols-4 md:m-4 h-14 md:h-25 mb-1 md:gap-0 p-2 space-x-2">
                   {template?.sections?.includes("personal") && (
                     <TabsTrigger
                       value="personal"
@@ -675,13 +808,13 @@ export default function ResumeBuilderPage({
                       Personal
                     </TabsTrigger>
                   )}
-                  {template?.sections?.includes("experience") && (
+                  {template?.sections?.includes("summary") && (
                     <TabsTrigger
-                      value="experience"
+                      value="summary"
                       className="flex items-center gap-2 justify-center min-h-10 p-1"
                     >
-                      <Briefcase className="h-4 w-4" />
-                      Experience
+                      <AlignLeft className="h-4 w-4" />
+                      Summary
                     </TabsTrigger>
                   )}
                   {template?.sections?.includes("education") && (
@@ -693,13 +826,13 @@ export default function ResumeBuilderPage({
                       Education
                     </TabsTrigger>
                   )}
-                  {template?.sections?.includes("skills") && (
+                  {template?.sections?.includes("experience") && (
                     <TabsTrigger
-                      value="skills"
+                      value="experience"
                       className="flex items-center gap-2 justify-center min-h-10 p-1"
                     >
-                      <Award className="h-4 w-4" />
-                      Skills
+                      <Briefcase className="h-4 w-4" />
+                      Experience
                     </TabsTrigger>
                   )}
                   {template?.sections?.includes("projects") && (
@@ -709,6 +842,24 @@ export default function ResumeBuilderPage({
                     >
                       <Code className="h-4 w-4" />
                       Projects
+                    </TabsTrigger>
+                  )}
+                  {template?.sections?.includes("skills") && (
+                    <TabsTrigger
+                      value="skills"
+                      className="flex items-center gap-2 justify-center min-h-10 p-1"
+                    >
+                      <Award className="h-4 w-4" />
+                      Skills
+                    </TabsTrigger>
+                  )}
+                  {template?.sections?.includes("achievements") && (
+                    <TabsTrigger
+                      value="achievements"
+                      className="flex items-center gap-2 justify-center min-h-10 p-1"
+                    >
+                      <Award className="h-4 w-4" />
+                      Achievements
                     </TabsTrigger>
                   )}
                   {template?.sections?.includes("certifications") && (
@@ -729,24 +880,6 @@ export default function ResumeBuilderPage({
                       Positions/Leadership
                     </TabsTrigger>
                   )}
-                  {template?.sections?.includes("achievements") && (
-                    <TabsTrigger
-                      value="achievements"
-                      className="flex items-center gap-2 justify-center min-h-10 p-1"
-                    >
-                      <Award className="h-4 w-4" />
-                      Achievements
-                    </TabsTrigger>
-                  )}
-                  {template?.sections?.includes("summary") && (
-                    <TabsTrigger
-                      value="summary"
-                      className="flex items-center gap-2 justify-center min-h-10 p-1"
-                    >
-                      <AlignLeft className="h-4 w-4" />
-                      Summary
-                    </TabsTrigger>
-                  )}
                 </TabsList>
               </div>
 
@@ -756,11 +889,14 @@ export default function ResumeBuilderPage({
                     <CardHeader>
                       <CardTitle>Personal Information</CardTitle>
                     </CardHeader>
-                    <CardContent className="space-y-4">
+                    <CardContent className="space-y-4 text-sm md:text-base">
                       <div className="grid grid-cols-2 gap-4">
                         <div>
-                          <Label htmlFor="fullName">Full Name</Label>
+                          <Label htmlFor="fullName" className="mb-0.5">
+                            Name
+                          </Label>
                           <Input
+                            className="text-sm md:text-base"
                             id="fullName"
                             value={resumeData.personalInfo?.fullName || ""}
                             onChange={(e) =>
@@ -776,8 +912,11 @@ export default function ResumeBuilderPage({
                           />
                         </div>
                         <div>
-                          <Label htmlFor="email">Email</Label>
+                          <Label htmlFor="email" className="mb-0.5">
+                            Email
+                          </Label>
                           <Input
+                            className="text-sm md:text-base"
                             id="email"
                             type="email"
                             value={resumeData.personalInfo?.email || ""}
@@ -796,8 +935,11 @@ export default function ResumeBuilderPage({
                       </div>
                       <div className="grid grid-cols-2 gap-4">
                         <div>
-                          <Label htmlFor="phone">Phone</Label>
+                          <Label htmlFor="phone" className="mb-0.5">
+                            Phone
+                          </Label>
                           <Input
+                            className="text-sm md:text-base"
                             id="phone"
                             value={resumeData.personalInfo?.phone || ""}
                             onChange={(e) =>
@@ -813,8 +955,11 @@ export default function ResumeBuilderPage({
                           />
                         </div>
                         <div>
-                          <Label htmlFor="location">Location</Label>
+                          <Label htmlFor="location" className="mb-0.5">
+                            Location
+                          </Label>
                           <Input
+                            className="text-sm md:text-base"
                             id="location"
                             value={resumeData.personalInfo?.location || ""}
                             onChange={(e) =>
@@ -832,8 +977,11 @@ export default function ResumeBuilderPage({
                       </div>
                       <div className="grid grid-cols-3 gap-4">
                         <div>
-                          <Label htmlFor="website">Website</Label>
+                          <Label htmlFor="website" className="mb-0.5">
+                            Website
+                          </Label>
                           <Input
+                            className="text-sm md:text-base"
                             id="website"
                             value={resumeData.personalInfo?.website || ""}
                             onChange={(e) =>
@@ -849,8 +997,11 @@ export default function ResumeBuilderPage({
                           />
                         </div>
                         <div>
-                          <Label htmlFor="linkedin">LinkedIn</Label>
+                          <Label htmlFor="linkedin" className="mb-0.5">
+                            LinkedIn
+                          </Label>
                           <Input
+                            className="text-sm md:text-base"
                             id="linkedin"
                             value={resumeData.personalInfo?.linkedin || ""}
                             onChange={(e) =>
@@ -866,8 +1017,11 @@ export default function ResumeBuilderPage({
                           />
                         </div>
                         <div>
-                          <Label htmlFor="github">GitHub</Label>
+                          <Label htmlFor="github" className="mb-0.5">
+                            GitHub
+                          </Label>
                           <Input
+                            className="text-sm md:text-base"
                             id="github"
                             value={resumeData.personalInfo?.github || ""}
                             onChange={(e) =>
@@ -932,8 +1086,9 @@ export default function ResumeBuilderPage({
                         <CardContent className="space-y-4">
                           <div className="grid grid-cols-2 gap-4">
                             <div>
-                              <Label>Institution</Label>
+                              <Label className="mb-0.5">Institution</Label>
                               <Input
+                                className="text-sm md:text-base"
                                 value={education.institution || ""}
                                 onChange={(e) =>
                                   updateEducation(
@@ -946,8 +1101,9 @@ export default function ResumeBuilderPage({
                               />
                             </div>
                             <div>
-                              <Label>Degree</Label>
+                              <Label className="mb-0.5">Degree</Label>
                               <Input
+                                className="text-sm md:text-base"
                                 value={education.degree || ""}
                                 onChange={(e) =>
                                   updateEducation(
@@ -962,8 +1118,9 @@ export default function ResumeBuilderPage({
                           </div>
                           <div className="grid grid-cols-2 gap-4">
                             <div>
-                              <Label>Field of Study</Label>
+                              <Label className="mb-0.5">Field of Study</Label>
                               <Input
+                                className="text-sm md:text-base"
                                 value={education.field || ""}
                                 onChange={(e) =>
                                   updateEducation(
@@ -976,8 +1133,9 @@ export default function ResumeBuilderPage({
                               />
                             </div>
                             <div>
-                              <Label>Location</Label>
+                              <Label className="mb-0.5">Location</Label>
                               <Input
+                                className="text-sm md:text-base"
                                 value={education.location || ""}
                                 onChange={(e) =>
                                   updateEducation(
@@ -992,8 +1150,9 @@ export default function ResumeBuilderPage({
                           </div>
                           <div className="grid grid-cols-3 gap-4">
                             <div>
-                              <Label>Start Date</Label>
+                              <Label className="mb-0.5">Start Date</Label>
                               <Input
+                                className="text-sm md:text-base"
                                 type="month"
                                 value={education.startDate || ""}
                                 onChange={(e) =>
@@ -1006,8 +1165,9 @@ export default function ResumeBuilderPage({
                               />
                             </div>
                             <div>
-                              <Label>End Date</Label>
+                              <Label className="mb-0.5">End Date</Label>
                               <Input
+                                className="text-sm md:text-base"
                                 type="month"
                                 value={education.endDate || ""}
                                 onChange={(e) =>
@@ -1020,8 +1180,9 @@ export default function ResumeBuilderPage({
                               />
                             </div>
                             <div>
-                              <Label>GPA (Optional)</Label>
+                              <Label className="mb-0.5">CGPA</Label>
                               <Input
+                                className="text-sm md:text-base"
                                 value={education.gpa || ""}
                                 onChange={(e) =>
                                   updateEducation(
@@ -1030,24 +1191,9 @@ export default function ResumeBuilderPage({
                                     e.target.value
                                   )
                                 }
-                                placeholder="3.8"
+                                placeholder="8.5"
                               />
                             </div>
-                          </div>
-                          <div>
-                            <Label>Description (Optional)</Label>
-                            <Textarea
-                              value={education.description || ""}
-                              onChange={(e) =>
-                                updateEducation(
-                                  education.id || "",
-                                  "description",
-                                  e.target.value
-                                )
-                              }
-                              placeholder="Relevant coursework, achievements, honors..."
-                              rows={2}
-                            />
                           </div>
                         </CardContent>
                       </Card>
@@ -1092,10 +1238,11 @@ export default function ResumeBuilderPage({
                           </Button>
                         </CardHeader>
                         <CardContent className="space-y-4">
-                          <div className="grid grid-cols-2 gap-4">
+                          <div className="grid grid-cols-2 gap-4 text-sm md:text-base">
                             <div>
-                              <Label>Company</Label>
+                              <Label className="mb-0.5">Company</Label>
                               <Input
+                                className="text-sm md:text-base"
                                 value={experience.company || ""}
                                 onChange={(e) =>
                                   updateExperience(
@@ -1108,8 +1255,9 @@ export default function ResumeBuilderPage({
                               />
                             </div>
                             <div>
-                              <Label>Position</Label>
+                              <Label className="mb-0.5">Position</Label>
                               <Input
+                                className="text-sm md:text-base"
                                 value={experience.position || ""}
                                 onChange={(e) =>
                                   updateExperience(
@@ -1122,10 +1270,11 @@ export default function ResumeBuilderPage({
                               />
                             </div>
                           </div>
-                          <div className="grid grid-cols-3 gap-4">
+                          <div className="grid grid-cols-3 gap-4 text-sm md:text-base">
                             <div>
-                              <Label>Location</Label>
+                              <Label className="mb-0.5">Location</Label>
                               <Input
+                                className="text-sm md:text-base"
                                 value={experience.location || ""}
                                 onChange={(e) =>
                                   updateExperience(
@@ -1138,8 +1287,9 @@ export default function ResumeBuilderPage({
                               />
                             </div>
                             <div>
-                              <Label>Start Date</Label>
+                              <Label className="mb-0.5">Start Date</Label>
                               <Input
+                                className="text-sm md:text-base"
                                 type="month"
                                 value={experience.startDate || ""}
                                 onChange={(e) =>
@@ -1152,8 +1302,9 @@ export default function ResumeBuilderPage({
                               />
                             </div>
                             <div>
-                              <Label>End Date</Label>
+                              <Label className="mb-0.5">End Date</Label>
                               <Input
+                                className="text-sm md:text-base"
                                 type="month"
                                 value={experience.endDate || ""}
                                 onChange={(e) =>
@@ -1167,7 +1318,7 @@ export default function ResumeBuilderPage({
                               />
                             </div>
                           </div>
-                          <div className="flex items-center space-x-2">
+                          <div className="flex items-center space-x-2 text-sm md:text-base">
                             <input
                               type="checkbox"
                               id={`current-${experience.id}`}
@@ -1184,9 +1335,10 @@ export default function ResumeBuilderPage({
                               Currently working here
                             </Label>
                           </div>
-                          <div>
-                            <Label>Description</Label>
+                          <div className="text-sm md:text-base">
+                            <Label className="mb-0.5">Description</Label>
                             <Textarea
+                              className="text-sm md:text-base"
                               value={experience.description || ""}
                               onChange={(e) =>
                                 updateExperience(
@@ -1243,8 +1395,9 @@ export default function ResumeBuilderPage({
                         <CardContent className="space-y-4">
                           <div className="grid grid-cols-2 gap-4">
                             <div>
-                              <Label>Project Name</Label>
+                              <Label className="mb-0.5">Project Name</Label>
                               <Input
+                                className="text-sm md:text-base"
                                 value={project.name || ""}
                                 onChange={(e) =>
                                   updateProject(
@@ -1257,8 +1410,9 @@ export default function ResumeBuilderPage({
                               />
                             </div>
                             <div>
-                              <Label>GitHub Link</Label>
+                              <Label className="mb-0.5">GitHub Link</Label>
                               <Input
+                                className="text-sm md:text-base"
                                 value={project.githubLink || ""}
                                 onChange={(e) =>
                                   updateProject(
@@ -1274,8 +1428,11 @@ export default function ResumeBuilderPage({
 
                           <div className="grid grid-cols-2 gap-4">
                             <div>
-                              <Label>Tech Stack / Skills</Label>
+                              <Label className="mb-0.5">
+                                Tech Stack / Skills
+                              </Label>
                               <Input
+                                className="text-sm md:text-base"
                                 value={
                                   inputProjectSkills[project.id || ""] ??
                                   (project.skills?.join(", ") || "")
@@ -1305,8 +1462,9 @@ export default function ResumeBuilderPage({
                               />
                             </div>
                             <div>
-                              <Label>Live Link</Label>
+                              <Label className="mb-0.5">Live Link</Label>
                               <Input
+                                className="text-sm md:text-base"
                                 value={project.liveLink || ""}
                                 onChange={(e) =>
                                   updateProject(
@@ -1322,8 +1480,9 @@ export default function ResumeBuilderPage({
 
                           <div className="grid grid-cols-2 gap-4">
                             <div>
-                              <Label>Start Date</Label>
+                              <Label className="mb-0.5">Start Date</Label>
                               <Input
+                                className="text-sm md:text-base"
                                 type="month"
                                 value={project.startDate || ""}
                                 onChange={(e) =>
@@ -1336,8 +1495,9 @@ export default function ResumeBuilderPage({
                               />
                             </div>
                             <div>
-                              <Label>End Date</Label>
+                              <Label className="mb-0.5">End Date</Label>
                               <Input
+                                className="text-sm md:text-base"
                                 type="month"
                                 value={project.endDate || ""}
                                 onChange={(e) =>
@@ -1371,8 +1531,9 @@ export default function ResumeBuilderPage({
                           </div>
 
                           <div>
-                            <Label>Description</Label>
+                            <Label className="mb-0.5">Description</Label>
                             <Textarea
+                              className="text-sm md:text-base"
                               value={project.description || ""}
                               onChange={(e) =>
                                 updateProject(
@@ -1429,8 +1590,9 @@ export default function ResumeBuilderPage({
                         </CardHeader>
                         <CardContent className="space-y-4">
                           <div>
-                            <Label>Category Name</Label>
+                            <Label className="mb-0.5">Category Name</Label>
                             <Input
+                              className="text-sm md:text-base"
                               value={skillGroup.category || ""}
                               onChange={(e) =>
                                 updateSkillCategory(
@@ -1443,8 +1605,11 @@ export default function ResumeBuilderPage({
                             />
                           </div>
                           <div>
-                            <Label>Skills (comma-separated)</Label>
+                            <Label className="mb-0.5">
+                              Skills (comma-separated)
+                            </Label>
                             <Textarea
+                              className="text-sm md:text-base"
                               value={
                                 inputSkills[skillGroup.id || ""] ??
                                 (skillGroup.skills?.join(", ") || "")
@@ -1516,8 +1681,9 @@ export default function ResumeBuilderPage({
                         <CardContent className="space-y-4">
                           <div className="grid grid-cols-2 gap-4">
                             <div>
-                              <Label>Certificate Name</Label>
+                              <Label className="mb-0.5">Certificate Name</Label>
                               <Input
+                                className="text-sm md:text-base"
                                 value={cert.name || ""}
                                 onChange={(e) =>
                                   updateCertification(
@@ -1530,8 +1696,9 @@ export default function ResumeBuilderPage({
                               />
                             </div>
                             <div>
-                              <Label>Issue Date</Label>
+                              <Label className="mb-0.5">Issue Date</Label>
                               <Input
+                                className="text-sm md:text-base"
                                 type="month"
                                 value={cert.issueDate || ""}
                                 onChange={(e) =>
@@ -1546,8 +1713,9 @@ export default function ResumeBuilderPage({
                           </div>
 
                           <div>
-                            <Label>Description</Label>
+                            <Label className="mb-0.5">Description</Label>
                             <Textarea
+                              className="text-sm md:text-base"
                               value={cert.description || ""}
                               onChange={(e) =>
                                 updateCertification(
@@ -1562,8 +1730,9 @@ export default function ResumeBuilderPage({
                           </div>
 
                           <div>
-                            <Label>Certificate Link</Label>
+                            <Label className="mb-0.5">Certificate Link</Label>
                             <Input
+                              className="text-sm md:text-base"
                               value={cert.link || ""}
                               onChange={(e) =>
                                 updateCertification(
@@ -1620,8 +1789,9 @@ export default function ResumeBuilderPage({
                         <CardContent className="space-y-4">
                           <div className="grid grid-cols-2 gap-4">
                             <div>
-                              <Label>Position</Label>
+                              <Label className="mb-0.5">Position</Label>
                               <Input
+                                className="text-sm md:text-base"
                                 value={position.position || ""}
                                 onChange={(e) =>
                                   updatePosition(
@@ -1634,8 +1804,9 @@ export default function ResumeBuilderPage({
                               />
                             </div>
                             <div>
-                              <Label>Company</Label>
+                              <Label className="mb-0.5">Company</Label>
                               <Input
+                                className="text-sm md:text-base"
                                 value={position.company || ""}
                                 onChange={(e) =>
                                   updatePosition(
@@ -1650,8 +1821,9 @@ export default function ResumeBuilderPage({
                           </div>
                           <div className="grid grid-cols-3 gap-4">
                             <div>
-                              <Label>Location</Label>
+                              <Label className="mb-0.5">Location</Label>
                               <Input
+                                className="text-sm md:text-base"
                                 value={position.location || ""}
                                 onChange={(e) =>
                                   updatePosition(
@@ -1664,8 +1836,9 @@ export default function ResumeBuilderPage({
                               />
                             </div>
                             <div>
-                              <Label>Start Date</Label>
+                              <Label className="mb-0.5">Start Date</Label>
                               <Input
+                                className="text-sm md:text-base"
                                 type="month"
                                 value={position.startDate || ""}
                                 onChange={(e) =>
@@ -1678,8 +1851,9 @@ export default function ResumeBuilderPage({
                               />
                             </div>
                             <div>
-                              <Label>End Date</Label>
+                              <Label className="mb-0.5">End Date</Label>
                               <Input
+                                className="text-sm md:text-base"
                                 type="month"
                                 value={position.endDate || ""}
                                 onChange={(e) =>
@@ -1711,8 +1885,9 @@ export default function ResumeBuilderPage({
                             </Label>
                           </div>
                           <div>
-                            <Label>Description</Label>
+                            <Label className="mb-0.5">Description</Label>
                             <Textarea
+                              className="text-sm md:text-base"
                               value={position.description || ""}
                               onChange={(e) =>
                                 updatePosition(
@@ -1771,6 +1946,7 @@ export default function ResumeBuilderPage({
                           {achievement.list?.map((item, i) => (
                             <div key={i} className="flex items-center gap-2">
                               <Input
+                                className="text-sm md:text-base"
                                 value={item}
                                 onChange={(e) =>
                                   updateAchievement(
@@ -1848,6 +2024,7 @@ export default function ResumeBuilderPage({
                         </CardHeader>
                         <CardContent>
                           <Textarea
+                            className="text-sm md:text-base"
                             rows={5}
                             placeholder="Briefly describe your background, skills, and goals..."
                             value={resumeData.summary.summary || ""}

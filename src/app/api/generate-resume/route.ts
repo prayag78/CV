@@ -4,7 +4,7 @@ export async function POST(req: NextRequest) {
   try {
     const { template, userData } = await req.json();
     //console.log("template", template);
-    console.log("userData", userData);
+    //console.log("userData", userData);
 
     const systemPrompt = `
       You are a highly skilled LaTeX resume editor. You will receive a LaTeX resume template and user-provided data. Your task is to seamlessly integrate the user's data into the existing LaTeX template while strictly adhering to the template's original formatting, style, spacing, and structure.  Crucially, you should ONLY update or add sections for which corresponding data is explicitly provided in the User Data.
@@ -30,7 +30,7 @@ export async function POST(req: NextRequest) {
       5. **Output**: Return ONLY the complete, updated, and VALID LaTeX code ready for PDF compilation. No extra comments, explanations, or markdown formatting. Ensure that the returned code compiles without errors.
       `;
 
-    // 🔸 Call Gemini
+    // Call Gemini
     const geminiRes = await fetch(
       `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${process.env.GEMINI_API_KEY}`,
       {
@@ -54,7 +54,7 @@ export async function POST(req: NextRequest) {
     let updatedLatex =
       geminiData?.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
 
-    // 🔸 Strip Markdown-style code blocks if present
+    // Strip Markdown-style code blocks if present
     if (updatedLatex?.startsWith("```latex")) {
       updatedLatex = updatedLatex.replace(/^```latex\s*/i, "");
     }
@@ -62,13 +62,13 @@ export async function POST(req: NextRequest) {
       updatedLatex = updatedLatex.replace(/```$/, "").trim();
     }
 
-    // 🔸 Validate LaTeX structure
+    // Validate LaTeX structure
     if (
       !updatedLatex ||
       !updatedLatex.includes("\\documentclass") ||
       !updatedLatex.includes("\\begin{document}")
     ) {
-      console.error("❌ Invalid LaTeX returned:", updatedLatex);
+      console.error("Invalid LaTeX returned:", updatedLatex);
       return NextResponse.json(
         {
           error: "Gemini returned invalid LaTeX code",
@@ -78,10 +78,10 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    console.log("Valid LaTeX received. Sending to render server...");
-    console.log("latexcode", updatedLatex);
+    // console.log("Valid LaTeX received. Sending to render server...");
+    // console.log("latexcode", updatedLatex);
 
-    // 🔸 Call Render PDF compiler
+    // Call Render PDF compiler
     const renderRes = await fetch(
       `${process.env.RENDER_LATEX_SERVER_URL}/compile`,
       {
@@ -106,10 +106,10 @@ export async function POST(req: NextRequest) {
 
     const pdfBuffer = await renderRes.arrayBuffer();
 
-    // 🔸 Convert PDF buffer to base64 string
+    // Convert PDF buffer to base64 string
     const base64PDF = Buffer.from(pdfBuffer).toString("base64");
 
-    // 🔸 Return JSON with LaTeX and PDF
+    // Return JSON with LaTeX and PDF
     return NextResponse.json({
       latex: updatedLatex,
       pdf: base64PDF,

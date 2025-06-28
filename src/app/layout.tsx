@@ -6,6 +6,7 @@ import Footer from "@/components/footer";
 import { ClerkProvider } from "@clerk/nextjs";
 import { syncUser } from "@/actions/user";
 import { currentUser } from "@clerk/nextjs/server";
+import { Toaster } from "react-hot-toast";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -38,6 +39,7 @@ export default async function RootLayout({children,
         <NavbarComponent />
         {children}
         <Footer />
+        <Toaster />
       </body>
     </html>
     </ClerkProvider>

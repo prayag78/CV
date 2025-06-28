@@ -15,12 +15,11 @@ import {
   CheckCircle,
   Download,
   User,
-  Zap
+  Zap,
 } from "lucide-react";
 import Link from "next/link";
 
 export default function LandingPage() {
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800">
       {/* Hero Section */}
@@ -40,8 +39,8 @@ export default function LandingPage() {
               </span>
             </h1>
             <p className="text-xl md:text-2xl text-slate-600 dark:text-slate-300 mb-8 max-w-2xl mx-auto leading-relaxed">
-              Generate professional, ATS-friendly resumes in seconds. Let AI
-              craft the perfect resume that gets you hired.
+              Create customizable LaTeX-based resumes with real-time AI
+              assistance and export them as high-quality PDFs.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
               <Button
@@ -49,22 +48,14 @@ export default function LandingPage() {
                 className="px-8 py-4 text-lg font-semibold"
                 asChild
               >
-                <Link href="/dashboard">
+                <Link href="/templates">
                   Get Started Free
                   <Zap className="ml-2 h-5 w-5" />
                 </Link>
               </Button>
-              <Button
-                variant="outline"
-                size="lg"
-                className="px-8 py-4 text-lg"
-                asChild
-              >
-                <Link href="#demo">Watch Demo</Link>
-              </Button>
             </div>
             <p className="text-sm text-slate-500 dark:text-slate-400 mt-4">
-              No credit card required • Create your first resume for free
+              No credit card required • Your first resume is on us
             </p>
           </div>
         </div>
@@ -78,8 +69,8 @@ export default function LandingPage() {
               Powerful Features
             </h2>
             <p className="text-xl text-slate-600 dark:text-slate-300 max-w-2xl mx-auto">
-              Everything you need to create the perfect resume that stands out
-              from the crowd
+              Everything you need to design, preview, and edit your LaTeX resume
+              with AI superpowers
             </p>
           </div>
 
@@ -90,14 +81,14 @@ export default function LandingPage() {
                   <Brain className="h-8 w-8 text-white" />
                 </div>
                 <CardTitle className="text-xl font-bold">
-                  AI-Powered Resume Generation
+                  AI-Powered Resume Writing
                 </CardTitle>
               </CardHeader>
               <CardContent className="text-center">
                 <CardDescription className="text-base leading-relaxed">
-                  Our advanced AI analyzes your experience and generates
-                  compelling, tailored content that highlights your strengths
-                  and achievements.
+                  Send your details with a single click—our integration with
+                  Gemini AI automatically generates tailored LaTeX code that
+                  highlights your strengths.
                 </CardDescription>
               </CardContent>
             </Card>
@@ -108,14 +99,13 @@ export default function LandingPage() {
                   <FileText className="h-8 w-8 text-white" />
                 </div>
                 <CardTitle className="text-xl font-bold">
-                  Custom LaTeX Resume Builder
+                  Real-Time LaTeX Preview
                 </CardTitle>
               </CardHeader>
               <CardContent className="text-center">
                 <CardDescription className="text-base leading-relaxed">
-                  Choose from professionally designed LaTeX templates that
-                  ensure pixel-perfect formatting and typography that impresses
-                  recruiters.
+                  Instantly view a high-quality PDF preview rendered by our
+                  external LaTeX server in a secure Docker container.
                 </CardDescription>
               </CardContent>
             </Card>
@@ -126,13 +116,14 @@ export default function LandingPage() {
                   <CheckCircle className="h-8 w-8 text-white" />
                 </div>
                 <CardTitle className="text-xl font-bold">
-                  ATS Compatibility Check
+                  Smart AI Edits
                 </CardTitle>
               </CardHeader>
               <CardContent className="text-center">
                 <CardDescription className="text-base leading-relaxed">
-                  Ensure your resume passes through Applicant Tracking Systems
-                  with our built-in ATS scanner and optimization suggestions.
+                  Make tweaks directly using prompts. Edit your resume by simply
+                  telling the AI what to change, and get an updated PDF
+                  instantly.
                 </CardDescription>
               </CardContent>
             </Card>
@@ -141,14 +132,14 @@ export default function LandingPage() {
       </section>
 
       {/* How It Works Section */}
-      <section className="py-20 px-4 bg-white dark:bg-slate-800">
+      <section className="py-20 px-4 bg-white dark:bg-slate-800 mb-5">
         <div className="container mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-4xl md:text-5xl font-bold text-slate-900 dark:text-white mb-4">
               How It Works
             </h2>
             <p className="text-xl text-slate-600 dark:text-slate-300 max-w-2xl mx-auto">
-              Create your professional resume in just three simple steps
+              Your resume in 3 simple steps
             </p>
           </div>
 
@@ -166,8 +157,8 @@ export default function LandingPage() {
                 Choose a Template
               </h3>
               <p className="text-slate-600 dark:text-slate-300 leading-relaxed">
-                Select from our collection of professionally designed templates
-                optimized for different industries and roles.
+                Browse modern LaTeX templates and select one that suits your
+                role or industry.
               </p>
             </div>
 
@@ -181,11 +172,11 @@ export default function LandingPage() {
                 </div>
               </div>
               <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-4">
-                Enter Your Info
+                Fill in Your Details
               </h3>
               <p className="text-slate-600 dark:text-slate-300 leading-relaxed">
-                Input your experience, skills, and achievements. Our AI will
-                help enhance and optimize your content automatically.
+                Input your resume data using our guided form. Our AI
+                personalizes it into LaTeX code dynamically.
               </p>
             </div>
 
@@ -199,121 +190,13 @@ export default function LandingPage() {
                 </div>
               </div>
               <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-4">
-                Download PDF Resume
+                Download or Refine with AI
               </h3>
               <p className="text-slate-600 dark:text-slate-300 leading-relaxed">
-                Get your polished, ATS-friendly resume as a high-quality PDF
-                ready to send to employers and land interviews.
+                View your resume in an embedded PDF viewer, download it, or make
+                smart edits using AI prompts for real-time updates.
               </p>
             </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Pricing Section */}
-      <section id="pricing" className="py-20 px-4">
-        <div className="container mx-auto">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-bold text-slate-900 dark:text-white mb-4">
-              Simple Pricing
-            </h2>
-            <p className="text-xl text-slate-600 dark:text-slate-300 max-w-2xl mx-auto">
-              Choose the plan that works best for you. Start free, upgrade when
-              you need more.
-            </p>
-          </div>
-
-          <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-            <Card className="relative border-2 border-slate-200 dark:border-slate-700 hover:shadow-xl transition-all duration-300">
-              <CardHeader className="text-center pb-8">
-                <CardTitle className="text-2xl font-bold mb-2">Free</CardTitle>
-                <div className="text-4xl font-bold text-slate-900 dark:text-white mb-2">
-                  $0
-                  <span className="text-lg font-normal text-slate-500">
-                    /month
-                  </span>
-                </div>
-                <CardDescription className="text-base">
-                  Perfect for getting started
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-3">
-                  <div className="flex items-center">
-                    <CheckCircle className="h-5 w-5 text-emerald-500 mr-3" />
-                    <span>1 resume creation</span>
-                  </div>
-                  <div className="flex items-center">
-                    <CheckCircle className="h-5 w-5 text-emerald-500 mr-3" />
-                    <span>Basic AI suggestions</span>
-                  </div>
-                  <div className="flex items-center">
-                    <CheckCircle className="h-5 w-5 text-emerald-500 mr-3" />
-                    <span>3 template options</span>
-                  </div>
-                  <div className="flex items-center">
-                    <CheckCircle className="h-5 w-5 text-emerald-500 mr-3" />
-                    <span>PDF download</span>
-                  </div>
-                </div>
-                <Button className="w-full mt-8" variant="outline" asChild>
-                  <Link href="/dashboard">Get Started Free</Link>
-                </Button>
-              </CardContent>
-            </Card>
-
-            <Card className="relative border-2 border-emerald-500 hover:shadow-xl transition-all duration-300">
-              <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
-                <Badge className="bg-emerald-500 text-white px-4 py-1">
-                  Most Popular
-                </Badge>
-              </div>
-              <CardHeader className="text-center pb-8">
-                <CardTitle className="text-2xl font-bold mb-2">Pro</CardTitle>
-                <div className="text-4xl font-bold text-slate-900 dark:text-white mb-2">
-                  $9
-                  <span className="text-lg font-normal text-slate-500">
-                    /month
-                  </span>
-                </div>
-                <CardDescription className="text-base">
-                  For serious job seekers
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-3">
-                  <div className="flex items-center">
-                    <CheckCircle className="h-5 w-5 text-emerald-500 mr-3" />
-                    <span className="font-medium">Unlimited resumes</span>
-                  </div>
-                  <div className="flex items-center">
-                    <CheckCircle className="h-5 w-5 text-emerald-500 mr-3" />
-                    <span className="font-medium">
-                      Advanced AI optimization
-                    </span>
-                  </div>
-                  <div className="flex items-center">
-                    <CheckCircle className="h-5 w-5 text-emerald-500 mr-3" />
-                    <span className="font-medium">All premium templates</span>
-                  </div>
-                  <div className="flex items-center">
-                    <CheckCircle className="h-5 w-5 text-emerald-500 mr-3" />
-                    <span className="font-medium">ATS compatibility check</span>
-                  </div>
-                  <div className="flex items-center">
-                    <CheckCircle className="h-5 w-5 text-emerald-500 mr-3" />
-                    <span className="font-medium">Cover letter generator</span>
-                  </div>
-                  <div className="flex items-center">
-                    <CheckCircle className="h-5 w-5 text-emerald-500 mr-3" />
-                    <span className="font-medium">Priority support</span>
-                  </div>
-                </div>
-                <Button className="w-full mt-8" asChild>
-                  <Link href="/dashboard">Start Pro Trial</Link>
-                </Button>
-              </CardContent>
-            </Card>
           </div>
         </div>
       </section>

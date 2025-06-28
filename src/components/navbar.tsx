@@ -36,18 +36,18 @@ export function NavbarComponent() {
   }, [isSignedIn]);
   
   const navItems = [
-    {
-      name: "Dashboard",
-      link: "/dashboard",
-    },
+    // {
+    //   name: "Dashboard",
+    //   link: "/dashboard",
+    // },
     {
       name: "Templates",
       link: "/templates",
     },
-    {
-      name: "Pricing",
-      link: "/pricing",
-    },
+    // {
+    //   name: "Pricing",
+    //   link: "/pricing",
+    // },
   ];
 
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);

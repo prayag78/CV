@@ -4,7 +4,7 @@ export async function POST(req: NextRequest) {
   try {
     const { template, userPrompt } = await req.json();
     //console.log("template", template);
-    console.log("userPrompt in edit resume", userPrompt);
+    //console.log("userPrompt in edit resume", userPrompt);
 
     const systemPrompt = `
       You are a highly skilled LaTeX resume editor. You will receive a LaTeX resume template, user-provided instructions detailing specific modifications, and optionally, new data to incorporate. Your task is to modify the existing LaTeX resume according to the user's instructions, maintaining the original template's formatting, style, spacing, and structure as much as possible.
@@ -37,7 +37,7 @@ export async function POST(req: NextRequest) {
       7. **Output**: Return ONLY the complete, updated, and VALID LaTeX code ready for PDF compilation. No extra comments, explanations, or markdown formatting. Ensure that the returned code compiles without errors.
       `;
 
-    // 🔸 Call Gemini
+    // Call Gemini
     const geminiRes = await fetch(
       `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${process.env.GEMINI_API_KEY}`,
       {
@@ -61,7 +61,7 @@ export async function POST(req: NextRequest) {
     let updatedLatex =
       geminiData?.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
 
-    // 🔸 Strip Markdown-style code blocks if present
+    // Strip Markdown-style code blocks if present
     if (updatedLatex?.startsWith("```latex")) {
       updatedLatex = updatedLatex.replace(/^```latex\s*/i, "");
     }
@@ -69,7 +69,7 @@ export async function POST(req: NextRequest) {
       updatedLatex = updatedLatex.replace(/```$/, "").trim();
     }
 
-    // 🔸 Validate LaTeX structure
+    // Validate LaTeX structure
     if (
       !updatedLatex ||
       !updatedLatex.includes("\\documentclass") ||
@@ -85,10 +85,10 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    console.log("Valid LaTeX received. Sending to render server...");
-    console.log("latexcode", updatedLatex);
+    //console.log("Valid LaTeX received. Sending to render server...");
+    //console.log("latexcode", updatedLatex);
 
-    // 🔸 Call Render PDF compiler
+    // Call Render PDF compiler
     const renderRes = await fetch(
       `${process.env.RENDER_LATEX_SERVER_URL}/compile`,
       {
@@ -113,10 +113,10 @@ export async function POST(req: NextRequest) {
 
     const pdfBuffer = await renderRes.arrayBuffer();
 
-    // 🔸 Convert PDF buffer to base64 string
+    // Convert PDF buffer to base64 string
     const base64PDF = Buffer.from(pdfBuffer).toString("base64");
 
-    // 🔸 Return JSON with LaTeX and PDF
+    // Return JSON with LaTeX and PDF
     return NextResponse.json({
       latex: updatedLatex,
       pdf: base64PDF,
