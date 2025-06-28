@@ -19,8 +19,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "CenCV",
-  description: "CenCV is a platform for creating customized resumes with AI.",
+  title: "GenCV",
+  description: "GenCV is a platform for creating customized resumes with AI.",
 };
 
 export default async function RootLayout({children,

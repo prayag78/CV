@@ -2,11 +2,12 @@
 
 import type React from "react";
 import { Input } from "@/components/ui/input";
-import { Brain, Send, RefreshCw, Download, Lightbulb } from "lucide-react";
+import { Send, RefreshCw, Download, Lightbulb } from "lucide-react";
 import { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { useResumeStore } from "@/store/resumeStore";
 import toast from "react-hot-toast";
+import Image from "next/image";
 
 export default function LatexEditorPage() {
   const { pdfUrl, setPdfUrl, latexCode, setLatexCode } = useResumeStore();
@@ -80,7 +81,12 @@ export default function LatexEditorPage() {
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 p-4 sm:p-6 bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700">
             <div className="flex items-center gap-3">
               <div className="p-2 bg-emerald-50 dark:bg-emerald-900/20 rounded-lg">
-                <Brain className="h-6 w-6 text-emerald-600 dark:text-emerald-400" />
+                <Image 
+                  src="/icon1.png"
+                  alt="GenCV"
+                  width={20}
+                  height={20}
+                  className="h-6 w-6 text-emerald-600 dark:text-emerald-400" />
               </div>
               <div>
                 <h1 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white">
@@ -126,7 +132,7 @@ export default function LatexEditorPage() {
               <div className="p-4 sm:p-6 flex justify-center items-center bg-slate-50 dark:bg-slate-900/50">
                 <div className="w-full max-w-4xl">
                   <iframe
-                    src={currentPdfUrl || "/image.png"}
+                    src={currentPdfUrl || "/icon1.png"}
                     className="w-full h-[50vh] sm:h-[60vh] lg:h-[70vh] xl:h-[75vh] border-2 border-slate-300 dark:border-slate-600 rounded-lg shadow-inner bg-white"
                     title="PDF Preview"
                   />
@@ -141,7 +147,12 @@ export default function LatexEditorPage() {
               <div className="p-4 sm:p-6 border-b border-slate-200 dark:border-slate-700 bg-gradient-to-r from-emerald-50 to-blue-50 dark:from-emerald-900/20 dark:to-blue-900/20">
                 <div className="flex items-center gap-3">
                   <div className="p-2 bg-emerald-100 dark:bg-emerald-800/50 rounded-lg">
-                    <Brain className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
+                    <Image 
+                      src="/icon1.png"
+                      alt="GenCV"
+                      width={20}
+                      height={20}
+                      className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
                   </div>
                   <div>
                     <h3 className="font-semibold text-slate-900 dark:text-white">
