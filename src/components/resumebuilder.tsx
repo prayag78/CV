@@ -19,7 +19,6 @@ import {
   AlignLeft,
 } from "lucide-react";
 import { useEffect, useState } from "react";
-import { getTemplate } from "@/actions/temp";
 import Image from "next/image";
 import { toast } from "react-hot-toast";
 import { useRouter } from "next/navigation";
@@ -166,13 +165,7 @@ export default function ResumeBuilderPage({
   const { latexCode, setLatexCode, pdfUrl, setPdfUrl } = useResumeStore();
   const [isMobile, setIsMobile] = useState(false);
 
-  useEffect(() => {
-    const fetchTemplate = async () => {
-      const template = await getTemplate(templateId);
-      setTemplate(template as Template);
-    };
-    fetchTemplate();
-  }, [templateId]);
+
 
   useEffect(() => {
     const handleResize = () => {
@@ -182,6 +175,16 @@ export default function ResumeBuilderPage({
     handleResize();
     return () => window.removeEventListener("resize", handleResize);
   }, []);
+
+  useEffect(() => {
+    const fetchTemplate = async () => {
+      const res = await fetch(`/api/fetch-template?name=${templateId}`);
+      const data = await res.json();
+      console.log(data)
+      setTemplate(data as Template);
+    };
+    fetchTemplate();
+  }, [templateId]);
 
   //console.log("isMobile", isMobile);
   //console.log("template sections", template?.sections);
