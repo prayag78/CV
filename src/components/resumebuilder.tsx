@@ -177,7 +177,7 @@ export default function ResumeBuilderPage({
     const fetchTemplate = async () => {
       const res = await fetch(`/api/fetch-template?name=${templateId}`);
       const data = await res.json();
-      console.log(data);
+      //console.log(data);
       setTemplate(data as Template);
     };
     fetchTemplate();
@@ -592,7 +592,7 @@ export default function ResumeBuilderPage({
     }
 
     const userData = await dbuser.json();
-    console.log(userData);
+    //console.log(userData);
 
     if (!userData) {
       toast.error("User not found in database. Please try signing in again.");
@@ -651,7 +651,12 @@ export default function ResumeBuilderPage({
       if (newResume) {
         toast.success("Resume created successfully");
       } else {
-        toast.error("Failed to create resume");
+        console.error("Resume creation failed - createResume returned null");
+        console.error("User ID:", userData.id);
+        console.error("Template ID:", template?.id);
+        console.error("LaTeX code length:", latex?.length);
+        console.error("PDF data length:", pdf?.length);
+        toast.error("Failed to create resume - please try again");
       }
     } catch (error) {
       toast.error("Generation failed");
