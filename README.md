@@ -30,7 +30,7 @@ A modern, AI-powered resume builder that helps you create professional, ATS-frie
 - **Next.js 15** - React framework with App Router
 - **TypeScript** - Type-safe development
 - **Tailwind CSS** - Utility-first CSS framework
-- **Radix UI** - Accessible component primitives
+- **shadcn/ui** – Customizable accessible UI components
 - **Lucide React** - Beautiful icons
 - **Framer Motion** - Smooth animations
 
@@ -39,7 +39,6 @@ A modern, AI-powered resume builder that helps you create professional, ATS-frie
 - **Prisma** - Type-safe database ORM
 - **PostgreSQL** - Robust relational database
 - **Supabase** - Database hosting and management
-- **Prisma Accelerate** - Database connection pooling
 
 ### Authentication & Payments
 
@@ -76,7 +75,7 @@ This project requires a separate Node.js LaTeX server for PDF generation. The La
 
 ### LaTeX Server Repository
 
-- **GitHub**: [LaTeX to PDF Server](https://github.com/yourusername/latex-pdf-server)
+- **GitHub**: [LaTeX to PDF Server](https://github.com/prayag78/Gen_demo/tree/5bc713c54415df3dc101073830c1bf8de3aba30c/apps/backend)
 - **Description**: Node.js server that converts LaTeX code to PDF using Docker containers
 - **Deployment**: Deployed on Vercel for production use
 
@@ -93,7 +92,7 @@ This project requires a separate Node.js LaTeX server for PDF generation. The La
 1. Clone the LaTeX server repository
 2. Follow the setup instructions in that repository
 3. Deploy to your preferred hosting platform
-4. Update the `LATEX_SERVER_URL` in your environment variables
+4. Update the `RENDER_LATEX_SERVER_URL` in your environment variables
 
 ## 🔧 Environment Variables
 
@@ -154,4 +153,3 @@ NEXT_PUBLIC_CLERK_SIGN_UP_URL=/sign-up
 4. **LaTeX Server**
    - Deploy the separate Node.js LaTeX server
    - Update the `RENDER_LATEX_SERVER_URL` with your server URL
-
