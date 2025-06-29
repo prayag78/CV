@@ -4,7 +4,7 @@ import "./globals.css";
 import { NavbarComponent } from "@/components/navbar";
 import Footer from "@/components/footer";
 import { ClerkProvider } from "@clerk/nextjs";
-import { syncUser } from "@/actions/user";
+import { syncUser } from "@/app/actions/user";
 import { currentUser } from "@clerk/nextjs/server";
 import { Toaster } from "react-hot-toast";
 
@@ -23,25 +23,26 @@ export const metadata: Metadata = {
   description: "GenCV is a platform for creating customized resumes with AI.",
 };
 
-export default async function RootLayout({children,
+export default async function RootLayout({
+  children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
   const user = await currentUser();
-  if(user) await syncUser();
+  if (user) await syncUser();
 
   return (
     <ClerkProvider>
-    <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-        <NavbarComponent />
-        {children}
-        <Footer />
-        <Toaster />
-      </body>
-    </html>
+      <html lang="en">
+        <body
+          className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        >
+          <NavbarComponent />
+          {children}
+          <Footer />
+          <Toaster />
+        </body>
+      </html>
     </ClerkProvider>
   );
 }

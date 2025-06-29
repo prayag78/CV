@@ -1,4 +1,4 @@
-import { syncUser } from "@/actions/user";
+import { syncUser } from "@/app/actions/user";
 import { NextResponse } from "next/server";
 
 export async function POST() {

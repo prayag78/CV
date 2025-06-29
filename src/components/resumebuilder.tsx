@@ -25,8 +25,7 @@ import { useRouter } from "next/navigation";
 import { useResumeStore } from "@/store/resumeStore";
 import Script from "next/script";
 import { useUser } from "@clerk/nextjs";
-import { createResume } from "@/actions/resume";
-import { getUser } from "@/actions/user";
+import { createResume } from "@/app/actions/resume";
 
 interface PersonalInfo {
   fullName?: string;
@@ -165,8 +164,6 @@ export default function ResumeBuilderPage({
   const { latexCode, setLatexCode, pdfUrl, setPdfUrl } = useResumeStore();
   const [isMobile, setIsMobile] = useState(false);
 
-
-
   useEffect(() => {
     const handleResize = () => {
       setIsMobile(window.innerWidth < 768);
@@ -180,7 +177,7 @@ export default function ResumeBuilderPage({
     const fetchTemplate = async () => {
       const res = await fetch(`/api/fetch-template?name=${templateId}`);
       const data = await res.json();
-      console.log(data)
+      console.log(data);
       setTemplate(data as Template);
     };
     fetchTemplate();
@@ -583,11 +580,25 @@ export default function ResumeBuilderPage({
       toast.error("Please sign in to generate a resume");
       return;
     }
-    const dbUser = await getUser(user.id);
-    if (!dbUser) {
-      toast.error("User not found");
+
+    const dbuser = await fetch(`/api/getuser?userId=${user.id}`, {
+      method: "GET",
+      headers: { "Content-Type": "application/json" },
+    });
+
+    if (!dbuser.ok) {
+      toast.error("Failed to fetch user data");
       return;
     }
+
+    const userData = await dbuser.json();
+    console.log(userData);
+
+    if (!userData) {
+      toast.error("User not found in database. Please try signing in again.");
+      return;
+    }
+
     setIsLoading(true);
     try {
       const payload = {
@@ -622,7 +633,7 @@ export default function ResumeBuilderPage({
       const newResume = await createResume({
         user: {
           connect: {
-            id: dbUser.id,
+            id: userData.id || "",
           },
         },
         template: {
@@ -634,7 +645,7 @@ export default function ResumeBuilderPage({
         latexCode: latex,
         pdfUrl: pdf,
         createdAt: new Date(),
-        isCustom: false
+        isCustom: false,
       });
 
       if (newResume) {
@@ -740,7 +751,7 @@ export default function ResumeBuilderPage({
                     className="w-full h-[500px] md:h-[600px] rounded border-none"
                     title="PDF Preview"
                   />
-                ) : (
+                ) : template?.thumbnailUrl ? (
                   <Image
                     src={template?.thumbnailUrl || "/image.png"}
                     alt={template?.name || "Template Preview"}
@@ -748,6 +759,16 @@ export default function ResumeBuilderPage({
                     height={1000}
                     className="rounded border"
                   />
+                ) : (
+                  <div className="flex justify-center items-center">
+                    <Image
+                      src={"/loader.svg"}
+                      alt="Template Preview"
+                      width={100}
+                      height={100}
+                      className="w-[50px] h-[50px]"
+                    />
+                  </div>
                 )}
               </div>
             )}
