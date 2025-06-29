@@ -1,6 +1,7 @@
 "use server";
 
 import prisma from "../../../../lib/prisma";
+import { NextResponse } from "next/server";
 
 export async function POST(req: Request) {
   const { userId, templateId, title, latexCode, pdfUrl, isCustom } = await req.json();
@@ -15,7 +16,7 @@ export async function POST(req: Request) {
         isCustom,
       },
     });
-    return newResume;
+    return NextResponse.json(newResume);
   } catch (error) {
     console.error("Error creating resume:", error);
     return null;
