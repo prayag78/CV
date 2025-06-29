@@ -630,32 +630,36 @@ export default function ResumeBuilderPage({
         setPdfUrl(url);
       }
 
+      // const newResume = await createResume({
+      //   user: {
+      //     connect: {
+      //       id: userData.id || "",
+      //     },
+      //   },
+      //   template: {
+      //     connect: {
+      //       id: template?.id || "",
+      //     },
+      //   },
+      //   title: template?.name || "",
+      //   latexCode: latex,
+      //   pdfUrl: pdf,
+      //   createdAt: new Date(),
+      //   isCustom: false,
+      // });
       const newResume = await createResume({
-        user: {
-          connect: {
-            id: userData.id || "",
-          },
-        },
-        template: {
-          connect: {
-            id: template?.id || "",
-          },
-        },
+        userId: userData.id || "",
+        templateId: template?.id || "",
         title: template?.name || "",
         latexCode: latex,
         pdfUrl: pdf,
         createdAt: new Date(),
         isCustom: false,
       });
-
+      
       if (newResume) {
         toast.success("Resume created successfully");
       } else {
-        console.error("Resume creation failed - createResume returned null");
-        console.error("User ID:", userData.id);
-        console.error("Template ID:", template?.id);
-        console.error("LaTeX code length:", latex?.length);
-        console.error("PDF data length:", pdf?.length);
         toast.error("Failed to create resume - please try again");
       }
     } catch (error) {
@@ -678,19 +682,6 @@ export default function ResumeBuilderPage({
   const handleEdit = () => {
     router.push("/edit");
   };
-
-  // useEffect(() => {
-  //   const pdfBase64 = sessionStorage.getItem("resume-base64");
-  //   if (pdfBase64) {
-  //     const byteCharacters = atob(pdfBase64);
-  //     const byteArray = new Uint8Array(
-  //       [...byteCharacters].map((c) => c.charCodeAt(0))
-  //     );
-  //     const blob = new Blob([byteArray], { type: "application/pdf" });
-  //     const url = URL.createObjectURL(blob);
-  //     setPdfUrl(url);
-  //   }
-  // }, [setPdfUrl]);
 
   return (
     <div className="h-100vh bg-slate-50 dark:bg-slate-900 overflow-y-auto mb-10 pt-4">

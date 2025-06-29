@@ -3,24 +3,8 @@
 import prisma from "../../../lib/prisma";
 import { Prisma } from "@/generated/prisma";
 
-export async function createResume(resume: Prisma.ResumeCreateInput) {
+export async function createResume(resume: Prisma.ResumeUncheckedCreateInput) {
   try {
-    // Validate required fields before attempting to create
-    if (!resume.user?.connect?.id) {
-      console.error("Missing user ID in resume creation");
-      return null;
-    }
-
-    if (!resume.template?.connect?.id) {
-      console.error("Missing template ID in resume creation");
-      return null;
-    }
-
-    if (!resume.latexCode) {
-      console.error("Missing LaTeX code in resume creation");
-      return null;
-    }
-
     const newResume = await prisma.resume.create({
       data: resume,
     });
@@ -29,18 +13,6 @@ export async function createResume(resume: Prisma.ResumeCreateInput) {
     return newResume;
   } catch (error) {
     console.error("Error creating resume:", error);
-
-    // Log specific error details for debugging
-    if (error instanceof Error) {
-      console.error("Error message:", error.message);
-      console.error("Error stack:", error.stack);
-    }
-
-    // Check for specific Prisma errors
-    if (error && typeof error === "object" && "code" in error) {
-      console.error("Prisma error code:", (error as { code: string }).code);
-    }
-
     return null;
   }
 }

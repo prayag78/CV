@@ -155,6 +155,3 @@ NEXT_PUBLIC_CLERK_SIGN_UP_URL=/sign-up
    - Deploy the separate Node.js LaTeX server
    - Update the `RENDER_LATEX_SERVER_URL` with your server URL
 
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
