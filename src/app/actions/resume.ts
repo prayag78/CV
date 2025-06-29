@@ -9,7 +9,6 @@ export async function createResume(resume: Prisma.ResumeUncheckedCreateInput) {
       data: resume,
     });
 
-    console.log("Resume created successfully:", newResume.id);
     return newResume;
   } catch (error) {
     console.error("Error creating resume:", error);

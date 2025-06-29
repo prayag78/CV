@@ -131,11 +131,20 @@ export default function LatexEditorPage() {
 
               <div className="p-4 sm:p-6 flex justify-center items-center bg-slate-50 dark:bg-slate-900/50">
                 <div className="w-full max-w-4xl">
+                  {currentPdfUrl ? (
                   <iframe
-                    src={currentPdfUrl || "/icon1.png"}
+                    src={currentPdfUrl}
                     className="w-full h-[50vh] sm:h-[60vh] lg:h-[70vh] xl:h-[75vh] border-2 border-slate-300 dark:border-slate-600 rounded-lg shadow-inner bg-white"
                     title="PDF Preview"
                   />
+                  ):(
+                    <div className="w-full h-[50vh] sm:h-[60vh] lg:h-[70vh] xl:h-[75vh] border-2 border-slate-300 dark:border-slate-600 rounded-lg shadow-inner bg-white">
+                      <p className="text-slate-500 dark:text-slate-400 text-center mt-2">
+                        No PDF available
+                        
+                      </p>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
